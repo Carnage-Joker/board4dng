@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Board</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; }
+        .container { width: 80%; margin: auto; overflow: hidden; }
+        header { background: #333; color: #fff; padding: 20px; text-align: center; }
+        header h1 { margin: 0; }
+        ul { list-style: none; padding: 0; }
+        .post { background: #fff; margin: 20px 0; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        form { margin-bottom: 40px; }
+        form input[type="text"], form textarea { width: 100%; padding: 10px; margin: 5px 0 10px; border-radius: 5px; border: 1px solid #ccc; }
+        form button { padding: 10px 20px; background: #5cb85c; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        form button:hover { background: #4cae4c; }
+        small { color: #888; }
+        .pagination { margin-top: 20px; text-align: center; }
+        .pagination a { color: #5cb85c; text-decoration: none; padding: 8px 16px; margin: 0 4px; border-radius: 5px; border: 1px solid #5cb85c; }
+        .pagination a:hover { background-color: #5cb85c; color: white; }
+        .pagination .current { padding: 8px 16px; border-radius: 5px; background-color: #5cb85c; color: white; }
+        .post a { margin-left: 10px; color: #007bff; text-decoration: none; }
+        .post a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Message Board</h1>
+        </div>
+    </header>
+    <div class="container">
+        <h2>Add a Post</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Submit</button>
+        </form>
+
+        <h2>Posts</h2>
+        <ul>
+            {% for post in page_obj %}
+            <li class="post">
+                <h3>{{ post.title }}</h3>
+                <p>{{ post.content }}</p>
+                <small>Posted by {{ post.author.username }} on {{ post.created_at }}</small>
+                {% if request.user == post.author %}
+                <a href="{% url 'edit_post' post.id %}">Edit</a>
+                <a href="{% url 'delete_post' post.id %}">Delete</a>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+</body>
+</html>
