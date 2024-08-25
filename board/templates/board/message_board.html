@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Message Board</h1>
+    
+    <h2>Add a Post</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Submit</button>
+    </form>
+
+    <h2>Posts</h2>
+    <ul class="list-unstyled">
+        {% for post in page_obj %}
+        <li class="post mb-4 p-3 bg-white rounded shadow-sm">
+            <h3>{{ post.title }}</h3>
+            <p>{{ post.content }}</p>
+            <small class="text-muted">Posted by {{ post.author.username }} on {{ post.created_at }}</small>
+            {% if request.user == post.author %}
+            <div class="mt-2">
+                <a href="{% url 'edit_post' post.id %}" class="btn btn-primary btn-sm">Edit</a>
+                <a href="{% url 'delete_post' post.id %}" class="btn btn-danger btn-sm">Delete</a>
+            </div>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+
+    <div class="pagination">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                {% endif %}
+
+                <li class="page-item disabled"><a class="page-link" href="#">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a></li>
+
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'logout' %}" class="btn btn-secondary">Logout</a>
+    </div>
+</div>
+{% endblock %}

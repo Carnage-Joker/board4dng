@@ -67,6 +67,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "messageboard.wsgi.application"
 
+SESSION_COOKIE_AGE = 1200  # 20 minutes
+SESSION_SAVE_EVERY_REQUEST = True
+
+
 
 
 # Load the secret key from the .env file

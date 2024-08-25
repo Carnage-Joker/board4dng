@@ -1,3 +1,5 @@
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from .models import Post
 from .forms import PostForm
@@ -5,6 +7,19 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator
+from django.contrib.auth.models import User
+
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('message_board')
+    else:
+        form = UserCreationForm()
+    return render(request, 'register.html', {'form': form})
 
 
 def profile(request, username):
@@ -13,36 +28,19 @@ def profile(request, username):
     return render(request, 'board/profile.html', {'user_profile': user, 'posts': posts})
 
 
-def index(request):
-    post_list = Post.objects.all().order_by('-created_at')
-    paginator = Paginator(post_list, 5)  # Show 5 posts per page.
-
+@login_required
+def message_board(request):
+    posts_list = Post.objects.all().order_by('-created_at')
+    paginator = Paginator(posts_list, 5)  # Show 5 posts per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
-    if request.method == 'POST' and request.user.is_authenticated:
-        form = PostForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.save()
-            return redirect('index')
-    else:
-        form = PostForm()
-    
-    return render(request, 'board/index.html', {'page_obj': page_obj, 'form': form})
+    context = {
+        'page_obj': page_obj,
+        'form': PostForm(),  # Assuming you have a PostForm for adding posts
+    }
+    return render(request, 'message_board.html', context)
 
- 
-# User registration view
-def register(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('login')
-    else:
-        form = UserCreationForm()
-    return render(request, 'board/register.html', {'form': form})
+
 
 # User login view
 def user_login(request):
@@ -56,6 +54,7 @@ def user_login(request):
     return render(request, 'board/login.html')
 
 # User logout view
+
 def user_logout(request):
     logout(request)
     return redirect('login')
@@ -71,6 +70,7 @@ def edit_post(request, post_id):
     else:
         form = PostForm(instance=post)
     return render(request, 'board/edit_post.html', {'form': form})
+
 
 def delete_post(request, post_id):
     post = get_object_or_404(Post, id=post_id, author=request.user)
