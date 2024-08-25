@@ -9,6 +9,9 @@ from .forms import PostForm
 from .models import Post
 
 
+from django.contrib import messages
+
+
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -16,9 +19,13 @@ def register(request):
             user = form.save()
             login(request, user)
             return redirect('message_board')
+        else:
+            messages.error(
+                request, "Registration failed. Please correct the error below.")
     else:
         form = UserCreationForm()
-    return render(request, 'board/register.html', {'form': form})
+    return render(request, 'register.html', {'form': form})
+
 
 
 def profile(request, username):
