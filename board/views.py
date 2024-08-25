@@ -27,7 +27,6 @@ def register(request):
     return render(request, 'register.html', {'form': form})
 
 
-
 def profile(request, username):
     user = get_object_or_404(User, username=username)
     posts = Post.objects.filter(author=user)
@@ -55,7 +54,10 @@ def user_login(request):
         if user is not None:
             login(request, user)
             return redirect('message_board')
-    return render(request, 'board/login.html')
+        else:
+            messages.error(request, "Invalid username or password.")
+    return render(request, 'login.html')
+
 
 
 def user_logout(request):
