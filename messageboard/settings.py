@@ -9,10 +9,13 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-import django_heroku
-import dj_database_url
 from decouple import config
+import dj_database_url
 import os
+
+import django_heroku
+
+
 from pathlib import Path
 
 
@@ -72,10 +75,8 @@ WSGI_APPLICATION = "messageboard.wsgi.application"
 
 
 # Load the secret key from the .env file
-SECRET_KEY = config(
-    'SECRET_KEY', default='django-insecure-&u8+w039nmm=bmwsbxk@tchj0gomnsv)xmf=shkl-pks+*&u3(')
+SECRET_KEY = config('SECRET_KEY')
 
-# Set DEBUG mode using .env
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = ['board4dng.herokuapp.com', 'localhost', '127.0.0.1']
@@ -83,12 +84,12 @@ ALLOWED_HOSTS = ['board4dng.herokuapp.com', 'localhost', '127.0.0.1']
 # Database configuration
 DATABASES = {
     'default': {
-        'ENGINE': config('DB_ENGINE', default='django.db.backends.mysql'),
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': config('DB_NAME'),
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT', default='3306'),
+        'PORT': config('DB_PORT', default=3306, cast=int),
     }
 }
 
@@ -96,7 +97,9 @@ DATABASES = {
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Default primary key field type
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Django-Heroku settings (optional)
