@@ -90,8 +90,14 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
         'PORT': config('DB_PORT', default=3306, cast=int),
+        # Remove sslmode, and add any MySQL-specific options if needed.
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            # Other MySQL-specific options can go here
+        },
     }
 }
+
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
