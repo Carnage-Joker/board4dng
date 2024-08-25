@@ -1,13 +1,12 @@
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from .models import Post
-from .forms import PostForm
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import get_object_or_404
-from django.core.paginator import Paginator
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404, redirect, render
+
+from .forms import PostForm
+from .models import Post
 
 
 def register(request):
@@ -19,7 +18,7 @@ def register(request):
             return redirect('message_board')
     else:
         form = UserCreationForm()
-    return render(request, 'register.html', {'form': form})
+    return render(request, 'board/register.html', {'form': form})
 
 
 def profile(request, username):
@@ -38,11 +37,9 @@ def message_board(request):
         'page_obj': page_obj,
         'form': PostForm(),  # Assuming you have a PostForm for adding posts
     }
-    return render(request, 'message_board.html', context)
+    return render(request, 'board/message_board.html', context)
 
 
-
-# User login view
 def user_login(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -50,10 +47,9 @@ def user_login(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('index')
+            return redirect('message_board')
     return render(request, 'board/login.html')
 
-# User logout view
 
 def user_logout(request):
     logout(request)
@@ -66,7 +62,7 @@ def edit_post(request, post_id):
         form = PostForm(request.POST, instance=post)
         if form.is_valid():
             form.save()
-            return redirect('index')
+            return redirect('message_board')
     else:
         form = PostForm(instance=post)
     return render(request, 'board/edit_post.html', {'form': form})
@@ -76,5 +72,5 @@ def delete_post(request, post_id):
     post = get_object_or_404(Post, id=post_id, author=request.user)
     if request.method == 'POST':
         post.delete()
-        return redirect('index')
+        return redirect('message_board')
     return render(request, 'board/delete_post.html', {'post': post})
