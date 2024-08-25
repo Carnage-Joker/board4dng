@@ -30,7 +30,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Application definition
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -39,7 +38,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "board",
-    "decouple",
 ]
 
 MIDDLEWARE = [
