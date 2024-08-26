@@ -24,7 +24,7 @@ def register(request):
                 request, "Registration failed. Please correct the error below.")
     else:
         form = UserCreationForm()
-    return render(request, 'register.html', {'form': form})
+    return render(request, 'board/register.html', {'form': form})
 
 
 def profile(request, username):
@@ -56,7 +56,7 @@ def user_login(request):
             return redirect('message_board')
         else:
             messages.error(request, "Invalid username or password.")
-    return render(request, 'login.html')
+    return render(request, 'board/login.html')
 
 
 def user_logout(request):

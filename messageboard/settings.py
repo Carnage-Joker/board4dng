@@ -93,9 +93,7 @@ DATABASES = {
 }
 
 # Override the database settings if a DATABASE_URL environment variable is set (Heroku)
-if 'DATABASE_URL' in os.environ:
-    DATABASES['default'] = dj_database_url.config(
-        conn_max_age=600, ssl_require=True)
+db_from_env = dj_database_url.config(conn_max_age=600)
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
