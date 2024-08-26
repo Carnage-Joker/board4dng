@@ -35,9 +35,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "board",
-    "django-heroku",
     "whitenoise.runserver_nostatic",
-    "mysqlclient",
 ]
 
 MIDDLEWARE = [
