@@ -52,7 +52,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = "messageboard.urls"
 TEMPLATES = [
     {
-<<<<<<< HEAD
+
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [BASE_DIR / 'board/templates'],  # Add this line
         'APP_DIRS': True,
