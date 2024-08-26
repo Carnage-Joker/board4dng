@@ -44,6 +44,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -77,7 +78,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 # Load the secret key from the .env file
 SECRET_KEY = config('SECRET_KEY')
 
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = True  # config('DEBUG', default=False, cast=bool)
 
 
 ALLOWED_HOSTS = ['board4dng.herokuapp.com', 'localhost', '127.0.0.1']
