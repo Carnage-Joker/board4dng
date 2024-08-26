@@ -35,13 +35,25 @@ def profile(request, username):
 
 @login_required
 def message_board(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            return redirect('message_board')
+    else:
+        form = PostForm()
+    
     posts_list = Post.objects.all().order_by('-created_at')
     paginator = Paginator(posts_list, 5)  # Show 5 posts per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    
     context = {
         'page_obj': page_obj,
-        'form': PostForm(),  # Assuming you have a PostForm for adding posts
+        'form': form,
+        'posts': posts_list
     }
     return render(request, 'board/message_board.html', context)
 
