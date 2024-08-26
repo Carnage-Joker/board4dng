@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 
-import dj_database_url
+
 import django_heroku
 from decouple import config
 
@@ -85,15 +85,21 @@ ALLOWED_HOSTS = ['board4dng.herokuapp.com', 'localhost', '127.0.0.1']
 
 
 # Database configuration
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT', default='5432'),
     }
 }
 
-# Override the database settings if a DATABASE_URL environment variable is set (Heroku)
-db_from_env = dj_database_url.config(conn_max_age=600)
+
+
+
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
@@ -101,8 +107,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-LOGIN_URL = 'login.html'
-LOGIN_REDIRECT_URL = 'message_board.html'
+LOGIN_URL = 'board/login.html'
+LOGIN_REDIRECT_URL = 'board/message_board.html'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
