@@ -7,13 +7,13 @@
     <div class="col-md-6">
         <h2 class="text-center">Sign Up</h2>
         <p class="text-center">Create an account to start posting!</p>
-        <p class="text-center mt-3">Already have an account? <a href="{% url 'login' %}">Login</a></p>
+        <p class="text-center mt-3">Already have an account? <a href="{% url 'login.html' %}">Login</a></p>
     </div>
 </div>
 {% if messages %}
     <ul class="messages">
         {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            <li>{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
         {% endfor %}
     </ul>
 {% endif %}

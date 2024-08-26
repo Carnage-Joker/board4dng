@@ -20,8 +20,8 @@
             <small class="text-muted">Posted by {{ post.author.username }} on {{ post.created_at }}</small>
             {% if request.user == post.author %}
             <div class="mt-2">
-                <a href="{% url 'edit_post' post.id %}" class="btn btn-primary btn-sm">Edit</a>
-                <a href="{% url 'delete_post' post.id %}" class="btn btn-danger btn-sm">Delete</a>
+                <a href="{% url 'edit_post.html' post.id %}" class="btn btn-primary btn-sm">Edit</a>
+                <a href="{% url 'delete_post.html' post.id %}" class="btn btn-danger btn-sm">Delete</a>
             </div>
             {% endif %}
         </li>

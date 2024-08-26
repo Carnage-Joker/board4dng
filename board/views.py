@@ -59,7 +59,6 @@ def user_login(request):
     return render(request, 'login.html')
 
 
-
 def user_logout(request):
     logout(request)
     return redirect('login')

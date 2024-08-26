@@ -101,8 +101,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = 'login.html'
+LOGIN_REDIRECT_URL = 'message_board.html'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
