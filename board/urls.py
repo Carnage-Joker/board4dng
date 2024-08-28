@@ -11,4 +11,8 @@ urlpatterns = [
     path('messageboard/', views.message_board, name='message_board'),
     path('edit/<int:post_id>/', views.edit_post, name='edit_post'),
     path('delete/<int:post_id>/', views.delete_post, name='delete_post'),
+    path('moderate/', views.moderate_posts, name='moderate_posts'),
+    path('approve/<int:post_id>/', views.approve_post, name='approve_post'),
+    path('reject/<int:post_id>/', views.reject_post, name='reject_post'),
+    path('flag/<int:post_id>/', views.flag_post, name='flag_post'),
 ]

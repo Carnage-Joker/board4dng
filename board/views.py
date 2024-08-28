@@ -106,7 +106,13 @@ def create_post(request):
             content = form.cleaned_data['content']
             if contains_banned_words(content):
                 messages.error(
-                    request, "Your post contains inappropriate language and cannot be submitted.")
+                    request, "Your post contains inappropriate language and cannot be submitted. If you think this is a mistake, please click the Iwanna Post button and it will be reviewed.")
+                # add prompt for the user to have their post reviewed if they believe it was a mistake
+                # Prompt the user to have their post reviewed
+                messages.info(
+                    request, "Your post has been flagged for review. It will be reviewed by a moderator before being published.")
+                # Send the post to the moderator for review
+                send_to_moderator(post)
                 return render(request, 'board/create_post.html', {'form': form})
             else:
                 post = form.save(commit=False)
@@ -116,3 +122,50 @@ def create_post(request):
     else:
         form = PostForm()
     return render(request, 'board/create_post.html', {'form': form})
+
+
+
+def flag_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    post.is_flagged = True
+    post.save()
+    messages.info(request, "The post has been flagged for review.")
+    return redirect('message_board')    
+
+@login_required                         
+def moderate_posts(request):
+    if not request.user.is_staff:
+        messages.error(
+            request, "You do not have permission to view this page.")
+        return redirect('message_board')
+
+    flagged_posts = Post.objects.filter(is_flagged=True, is_moderated=False)
+    return render(request, 'board/moderate_posts.html', {'flagged_posts': flagged_posts})
+
+
+@login_required
+def approve_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if not request.user.is_staff:
+        messages.error(
+            request, "You do not have permission to approve this post.")
+        return redirect('moderate_posts')
+
+    post.is_moderated = True
+    post.is_flagged = False
+    post.save()
+    messages.success(request, "The post has been approved.")
+    return redirect('moderate_posts')
+
+
+@login_required
+def reject_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if not request.user.is_staff:
+        messages.error(
+            request, "You do not have permission to reject this post.")
+        return redirect('moderate_posts')
+
+    post.delete()
+    messages.success(request, "The post has been rejected and deleted.")
+    return redirect('moderate_posts')

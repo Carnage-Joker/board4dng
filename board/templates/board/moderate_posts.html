@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Moderate Posts{% endblock %}
+
+{% block content %}
+<h2>Flagged Posts for Moderation</h2>
+
+{% if flagged_posts %}
+    <ul>
+        {% for post in flagged_posts %}
+        <li>
+            <strong>{{ post.title }}</strong> by {{ post.author.username }}<br>
+            {{ post.content }}<br>
+            <a href="{% url 'approve_post' post.id %}">Approve</a> | 
+            <a href="{% url 'reject_post' post.id %}">Reject</a>
+        </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No posts require moderation at this time.</p>
+{% endif %}
+
+{% endblock %}
