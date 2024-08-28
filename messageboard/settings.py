@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 from pathlib import Path
 
-
 import django_heroku
 from decouple import config
 
@@ -26,6 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Application definition
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -75,6 +75,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 
 # Load the secret key from the .env file
+
 SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = config('DEBUG', default=False, cast=bool)
@@ -110,7 +111,7 @@ EMAIL_HOST = config('EMAIL_HOST', default='smtp.sendgrid.net')
 EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-# Replace with your default sender email
+
 DEFAULT_FROM_EMAIL = 'fease@digdeep.fitness'
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='apikey')
 EMAIL_USER = config('EMAIL_USER', default='apikey')
