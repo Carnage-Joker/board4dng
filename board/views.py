@@ -7,6 +7,7 @@ from django.core.paginator import Paginator
 from django.contrib import messages
 from .forms import PostForm
 from .models import Post
+from .utils import send_to_moderator
 # Load your banned words list from the file
 
 
