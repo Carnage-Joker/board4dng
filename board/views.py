@@ -6,8 +6,7 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.contrib import messages
 from .forms import PostForm
-from .models import Post, send_to_moderator
-
+from .models import Post
 # Load your banned words list from the file
 
 
