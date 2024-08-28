@@ -102,15 +102,18 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Email configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config('EMAIL_HOST')
-EMAIL_PORT = config('EMAIL_PORT')
-EMAIL_USE_TLS = True
+# Remove or correct this line
 EMAIL_USER = config('EMAIL_USER')
-EMAIL_HOST_PASSWORD = config('SENDGRID_API_KEY')
-DEFAULT_FROM_EMAIL = EMAIL_USER
-# Authentication configuration
+
+# Ensure you have these lines set correctly:
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.sendgrid.net')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='apikey')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+# Replace with your default sender email
+DEFAULT_FROM_EMAIL = 'fease@digdeep.fitness'
 
 
 LOGIN_URL = 'board/login.html'
