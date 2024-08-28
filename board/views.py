@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.contrib import messages
 from .forms import PostForm
-from .models import Post
+from .models import Post, send_to_moderator
 
 # Load your banned words list from the file
 
@@ -105,10 +105,7 @@ def create_post(request):
         if form.is_valid():
             content = form.cleaned_data['content']
             if contains_banned_words(content):
-                messages.error(
-                    request, "Your post contains inappropriate language and cannot be submitted. If you think this is a mistake, please click the Iwanna Post button and it will be reviewed.")
-                # add prompt for the user to have their post reviewed if they believe it was a mistake
-                # Prompt the user to have their post reviewed
+                post = form.save(commit=False)
                 messages.info(
                     request, "Your post has been flagged for review. It will be reviewed by a moderator before being published.")
                 # Send the post to the moderator for review
@@ -122,7 +119,6 @@ def create_post(request):
     else:
         form = PostForm()
     return render(request, 'board/create_post.html', {'form': form})
-
 
 
 def flag_post(request, post_id):

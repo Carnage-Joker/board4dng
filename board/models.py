@@ -1,10 +1,7 @@
-from django.db import models
-from django.contrib.auth.models import User
-
-from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.conf import settings
+from django.db import models
 
 
 def get_default_user():
@@ -26,7 +23,7 @@ class Post(models.Model):
         subject = f"Moderation needed for post: {self.title}"
         message = f"The following post needs moderation:\n\nTitle: {
             self.title}\n\nContent: {self.content}\n\nAuthor: {self.author.username}"
-        moderator_email = "moderator@example.com"  # Replace with actual moderator email
+        moderator_email = "info@thepinkbook.com.au"  # Replace with actual moderator email
 
         send_mail(
             subject,
