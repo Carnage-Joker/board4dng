@@ -7,6 +7,7 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
+
 def send_to_moderator(post):
     """
     Sends a post to a moderator for review.
