@@ -20,5 +20,21 @@
         </li>
         {% endfor %}
     </ul>
+
+    <h2>{{ user_profile.username }}'s Private Messages</h2>
+    <ul>
+        {% for private_message in private_messages %}
+        <li class="post">
+            <h3>{{ private_message.title }}</h3>
+            <p>{{ private_message.content }}</p>
+            <small>Sent on {{ private_message.created_at }}</small>
+            {% if request.user == private_message.sender %}
+            <a href="{% url 'edit_private_message' private_message.id %}">Edit</a>
+            <a href="{% url 'delete_private_message' private_message.id %}">Delete</a>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+
 </body>
 </html>

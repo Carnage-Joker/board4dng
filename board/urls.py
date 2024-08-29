@@ -15,4 +15,6 @@ urlpatterns = [
     path('approve/<int:post_id>/', views.approve_post, name='approve_post'),
     path('reject/<int:post_id>/', views.reject_post, name='reject_post'),
     path('flag/<int:post_id>/', views.flag_post, name='flag_post'),
+    path('create_message/', views.create_message,
+         name='create_message'),
 ]

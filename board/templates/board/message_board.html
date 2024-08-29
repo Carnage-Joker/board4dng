@@ -3,6 +3,12 @@
 {% block content %}
 <h1 class="text-center">Message Board</h1>
 <div class="row justify-content-center">
+    <div class="links">
+        <p><a href="{% url 'board:create_post' %}" class="btn btn-primary">Click here</a> to write a message to the whole fam, or</p>
+        <p><a href="{% url 'board:create_message' %}" class="btn btn-primary">Click here</a> to message someone privately</p>
+    </div>
+</div>
+<div class="row justify-content-center">
     <div class="col-md-8">
         {% for post in page_obj %}
         <div class="post">
@@ -11,6 +17,7 @@
             <small class="text-muted">Posted by {{ post.author.username }} on {{ post.created_at }}</small>
         </div>
         {% endfor %}
+
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
                 {% if page_obj.has_previous %}

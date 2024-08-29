@@ -1,13 +1,16 @@
-from django.shortcuts import render, redirect, get_object_or_404
+
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
-from django.contrib import messages
-from .forms import PostForm
-from .models import Post
+from django.shortcuts import get_object_or_404, redirect, render
+
+from .forms import PostForm, PrivateMessageForm
+from .models import Post, PrivateMessage
 from .utils import send_to_moderator
+
 # Load your banned words list from the file
 
 
@@ -41,7 +44,15 @@ def register(request):
 def profile(request, username):
     user = get_object_or_404(User, username=username)
     posts = Post.objects.filter(author=user)
-    return render(request, 'board/profile.html', {'user_profile': user, 'posts': posts})
+    private_messages = PrivateMessage.objects.filter(
+        sender=user)  # Adjust this query as needed
+    context = {
+        'user_profile': user,
+        'posts': posts,
+        'private_messages': private_messages,
+    }
+    return render(request, 'board/profile.html', context)
+
 
 
 @login_required
@@ -99,6 +110,26 @@ def delete_post(request, post_id):
 
 
 @login_required
+def create_message(request):
+    if request.method == 'POST':
+        form = PrivateMessageForm(request.POST)
+        if form.is_valid():
+            private_message = form.save(commit=False)
+            private_message.sender = request.user
+            private_message.save()
+            messages.success(request, 'Your message has been sent!')
+            # Redirect to your message board or another relevant page
+            return redirect('message_board')
+        else:
+            messages.error(
+                request, 'There was an error sending your message. Please try again.')
+    else:
+        form = PrivateMessageForm()
+
+    return render(request, 'board/create_message.html', {'form': form})
+
+
+@login_required
 def create_post(request):
     if request.method == 'POST':
         form = PostForm(request.POST)
@@ -126,9 +157,10 @@ def flag_post(request, post_id):
     post.is_flagged = True
     post.save()
     messages.info(request, "The post has been flagged for review.")
-    return redirect('message_board')    
+    return redirect('message_board')
 
-@login_required                         
+
+@login_required
 def moderate_posts(request):
     if not request.user.is_staff:
         messages.error(
