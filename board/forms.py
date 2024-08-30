@@ -1,6 +1,7 @@
 from django import forms
 from .models import Post
 from .models import PrivateMessage  # Assuming you have a PrivateMessage model
+from django.contrib.auth.models import User
 
 
 class PrivateMessageForm(forms.ModelForm):
