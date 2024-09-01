@@ -111,7 +111,7 @@ EMAIL_HOST = config('EMAIL_HOST', default='smtp.sendgrid.net')
 EMAIL_PORT = config('EMAIL_PORT', default=465, cast=int)
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
-DEFAULT_FROM_EMAIL = 'info@thepinkbook.com.au'
+DEFAULT_FROM_EMAIL = 'noreplyaccactivation@thepinkbook.com.au'
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='apikey')
 EMAIL_USER = config('EMAIL_USER', default='apikey')
 
