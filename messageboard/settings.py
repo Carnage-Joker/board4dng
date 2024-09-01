@@ -78,7 +78,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 SECRET_KEY = config('SECRET_KEY')
 
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = true  # config('DEBUG', default=False, cast=bool)
 
 
 ALLOWED_HOSTS = ['board4dng.herokuapp.com', 'localhost', '127.0.0.1']
