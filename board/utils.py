@@ -1,3 +1,6 @@
+from sendgrid.helpers.mail import Mail
+from sendgrid import SendGridAPIClient
+import os
 import logging
 from django.core.mail import send_mail
 from django.conf import settings
@@ -22,3 +25,21 @@ def send_to_moderator(post):
         logger.info("Email sent to moderator successfully.")
     except Exception as e:
         logger.error(f"Failed to send email to moderator: {e}")
+
+
+# using SendGrid's Python Library
+# https://github.com/sendgrid/sendgrid-python
+
+message = Mail(
+    from_email='info@thepinkbook.com.au',
+    to_emails='phill.jones2112@gmail.com',
+    subject='Sending with Twilio SendGrid is Fun',
+    html_content='<strong>and easy to do anywhere, even with Python</strong>')
+try:
+    sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+    response = sg.send(message)
+    print(response.status_code)
+    print(response.body)
+    print(response.headers)
+except Exception as e:
+    print(e.message)
