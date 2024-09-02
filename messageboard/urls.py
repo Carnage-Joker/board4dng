@@ -7,9 +7,14 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # Make sure 'board.urls' is correctly defined
     path('', include('board.urls')),
+
+    path('messageboard/', include('board.urls', namespace='board')),
 ]
 
 static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     
 
+urlpatterns = [
+    path('admin/', admin.site.urls),
+]
