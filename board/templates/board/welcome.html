@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Message Board{% endblock %}
+
+{% block content %}
+<h2 class="text-center">Message Board</h2>
+<div class="text-right mb-3">
+    <a href="{% url 'login' %}" class="btn btn-danger">sign in</a>
+  <a href="{% url 'register' %}" class="btn btn-danger">sign up</a>
+</div>
+{% endblock %}
+
+
