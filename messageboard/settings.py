@@ -106,19 +106,17 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Remove or correct this line
 
 # Ensure you have these lines set correctly:
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config('EMAIL_HOST', default='smtp.sendgrid.net')
-EMAIL_PORT = config('EMAIL_PORT', default=465, cast=int)
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
-DEFAULT_FROM_EMAIL = 'noreplyaccactivation@thepinkbook.com.au'
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='apikey')
 EMAIL_USER = config('EMAIL_USER', default='apikey')
-
-
-LOGIN_URL = 'board/login.html'
-LOGIN_REDIRECT_URL = 'board/message_board.html'
-
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_PASSWORD = config('SENDGRID_API_KEY')
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'message_board'
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Django-Heroku settings (optional)
