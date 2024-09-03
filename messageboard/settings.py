@@ -116,8 +116,8 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='apikey')
 EMAIL_USER = config('EMAIL_USER', default='apikey')
 
 
-LOGIN_URL = 'board/login.html'
-LOGIN_REDIRECT_URL = 'board/message_board.html'
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'message_board'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
