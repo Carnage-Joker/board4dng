@@ -109,7 +109,6 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 DEFAULT_FROM_EMAIL = 'noreplyaccactivation@thepinkbook.com.au'
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_USER = config('EMAIL_USER')
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config('EMAIL_HOST')
