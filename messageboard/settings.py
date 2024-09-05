@@ -106,15 +106,17 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Remove or correct this line
 
 # Ensure you have these lines set correctly:
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config('EMAIL_HOST', default='smtp.sendgrid.net')
-EMAIL_PORT = config('EMAIL_PORT', default=465, cast=int)
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+
 
 DEFAULT_FROM_EMAIL = 'noreplyaccactivation@thepinkbook.com.au'
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='apikey')
-EMAIL_USER = config('EMAIL_USER', default='apikey')
-
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_USER = config('EMAIL_USER')
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = config('EMAIL_PORT', default=465, cast=int)
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'message_board'
