@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -24,7 +25,9 @@ BANNED_WORDS = load_banned_words()
 def contains_banned_words(content):
     return any(word in content.lower() for word in BANNED_WORDS)
 
-
+def welcome(request):
+    return render(request, 'board/welcome.html')
+    
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
