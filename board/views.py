@@ -139,6 +139,7 @@ def create_post(request):
             content = form.cleaned_data['content']
             if contains_banned_words(content):
                 post = form.save(commit=False)
+                flag_post(post, post_id)
                 messages.info(
                     request, "Your post has been flagged for review. It will be reviewed by a moderator before being published.")
                 # Send the post to the moderator for review

@@ -1,10 +1,12 @@
 /* Basic custom styles */
 body {
-    background-color: #f8f9fa;
+    background-color: #4288ce92;
 }
 
 .container {
     margin-top: 50px;
+    inset-inline: 40%;
+    padding: 20px;
 }
 
 .navbar {
@@ -13,11 +15,14 @@ body {
 
 h1,
 h2 {
-    color: #343a40;
+    color: #cad0528e;
 }
 
 .post {
-    background-color: #ffffff;
+    background-color: #ef7ed98d;
+    font-size: 18px;
+    font-family: fantasy;
+    font-color: #8f2263;
     padding: 20px;
     margin-bottom: 20px;
     border-radius: 8px;

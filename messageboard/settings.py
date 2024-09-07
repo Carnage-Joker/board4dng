@@ -79,7 +79,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = True  # config('DEBUG', default=False, cast=bool)
 
 
-ALLOWED_HOSTS = ['board4dng.herokuapp.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['board4dng.herokuapp.com', 'localhost', '127.0.0.1:8000']
 
 
 # Database configuration
@@ -112,7 +112,7 @@ EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
 EMAIL_PORT = config('EMAIL_PORT', default=465, cast=int)
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
+EMAIL_USE_SSL = True
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 
 LOGIN_URL = 'login'
