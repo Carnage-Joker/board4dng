@@ -72,8 +72,6 @@ SESSION_COOKIE_AGE = 1200  # 20 minutes
 SESSION_SAVE_EVERY_REQUEST = True
 
 
-
-
 # Load the secret key from the .env file
 
 SECRET_KEY = config('SECRET_KEY')
@@ -109,13 +107,13 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 DEFAULT_FROM_EMAIL = 'noreplyaccactivation@thepinkbook.com.au'
-EMAIL_USER = config('EMAIL_USER')
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
 EMAIL_PORT = config('EMAIL_PORT', default=465, cast=int)
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'message_board'
