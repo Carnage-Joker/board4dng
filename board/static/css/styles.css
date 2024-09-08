@@ -1,38 +1,184 @@
-/* Basic custom styles */
+/* Base styles for the website */
 body {
-    background-color: #4288ce92;
+    background-color: #f7f0fa;
+    /* Soft pink background */
+    font-family: 'Poppins', sans-serif;
+    color: #2e2e2e;
+    /* Dark gray for contrast */
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
 }
 
-.container {
-    margin-top: 50px;
-    inset-inline: 40%;
-    padding: 20px;
+/* Links */
+a {
+    color: #ff69b4;
+    /* Hot pink */
+    text-decoration: none;
+    transition: color 0.3s ease;
 }
 
+a:hover {
+    color: #7f00ff;
+    /* Neon purple */
+}
+
+/* Buttons */
+.btn {
+    background-color: #ff69b4;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 10px 20px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #7f00ff;
+    /* Neon purple hover */
+}
+
+/* Navbar */
 .navbar {
-    margin-bottom: 30px;
+    background-color: #2e2e2e;
+    /* Dark gray navbar */
+    padding: 10px 20px;
+    border-bottom: 2px solid #ff69b4;
+    /* Hot pink underline */
+}
+
+.navbar .navbar-brand {
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.navbar .nav-link {
+    color: #ff69b4;
+    font-size: 16px;
+    padding-left: 20px;
+}
+
+.navbar .nav-link:hover {
+    color: #7f00ff;
+    /* Neon purple hover */
+}
+
+/* Content Area */
+.container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
 }
 
 h1,
-h2 {
-    color: #cad0528e;
+h2,
+h3 {
+    color: #7f00ff;
+    /* Neon purple for headers */
+    font-weight: bold;
 }
 
-.post {
-    background-color: #ef7ed98d;
-    font-size: 18px;
-    font-family: fantasy;
-    font-color: #8f2263;
+/* Form styles */
+input[type="text"],
+input[type="password"],
+textarea,
+select {
+    background-color: #f0e9f7;
+    border: 2px solid #ff69b4;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 16px;
+    width: 100%;
+    margin-bottom: 20px;
+    color: #2e2e2e;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+    border-color: #7f00ff;
+    outline: none;
+}
+
+/* Footer */
+footer {
+    background-color: #2e2e2e;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    margin-top: 40px;
+}
+
+footer a {
+    color: #ff69b4;
+}
+
+footer a:hover {
+    color: #7f00ff;
+}
+
+/* Buttons in forms */
+input[type="submit"],
+button {
+    background-color: #7f00ff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover,
+button:hover {
+    background-color: #ff69b4;
+}
+
+/* Cards for messages/posts */
+.card {
+    background-color: #ffffff;
+    border: 1px solid #f0e9f7;
+    border-radius: 10px;
     padding: 20px;
     margin-bottom: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.footer {
-    text-align: center;
-    padding: 20px;
-    margin-top: 30px;
-    background-color: #343a40;
-    color: #ffffff;
+.card h3 {
+    color: #7f00ff;
+}
+
+/* Pagination */
+.pagination .page-item .page-link {
+    color: #ff69b4;
+    border-radius: 30px;
+    margin: 0 5px;
+    transition: background-color 0.3s ease;
+}
+
+.pagination .page-item .page-link:hover {
+    background-color: #7f00ff;
+    color: white;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #ff69b4;
+    color: white;
+    border: none;
+}
+
+/* Mobile-friendly adjustments */
+@media (max-width: 768px) {
+    .navbar .nav-link {
+        padding-left: 10px;
+    }
+
+    .container {
+        padding: 10px;
+    }
 }

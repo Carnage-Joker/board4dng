@@ -1,13 +1,11 @@
 {% extends 'board/base.html' %}
 
-{% block title %}Message Board{% endblock %}
+{% block title %}Welcome{% endblock %}
 
 {% block content %}
-<h2 class="text-center">Message Board</h2>
-<div class="text-right mb-3">
-    <a href="{% url 'login' %}" class="btn btn-danger">sign in</a>
-  <a href="{% url 'register' %}" class="btn btn-danger">sign up</a>
+<div class="text-center">
+    <h1 class="display-4">Welcome to the Sleek Message Board!</h1>
+    <p class="lead">Join the conversation or send a private message.</p>
+    <a href="{% url 'register' %}" class="btn btn-primary">Get Started</a>
 </div>
 {% endblock %}
-
-

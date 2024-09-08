@@ -1,20 +1,29 @@
 {% extends 'board/base.html' %}
 
+{% block title %}Message Board{% endblock %}
+
 {% block content %}
-<h1 class="text-center">Message Board</h1>
-<div class="row justify-content-center">
-    <div class="links">
-        <p><a href="{% url 'create_post' %}" class="btn btn-primary">Click here</a> to write a message to the whole fam, or</p>
-        <p><a href="{% url 'create_message' %}" class="btn btn-primary">Click here</a> to message someone privately</p>
-    </div>
+<h1 class="text-center mb-4">Message Board</h1>
+
+<div class="text-center mb-4">
+    <p><a href="{% url 'create_post' %}" class="btn btn-primary">Write a New Post</a></p>
 </div>
+
 <div class="row justify-content-center">
     <div class="col-md-8">
         {% for post in page_obj %}
-        <div class="post">
-            <h3>{{ post.title }}</h3>
-            <p>{{ post.content }}</p>
-            <small class="text-muted">Posted by {{ post.author.username }} on {{ post.created_at }}</small>
+        <div class="card mb-3">
+            <div class="card-body">
+                <h3>{{ post.title }}</h3>
+                <p>{{ post.content }}</p>
+                <small class="text-muted">Posted by {{ post.author.username }} on {{ post.created_at }}</small>
+                <div class="mt-2">
+                    {% if request.user == post.author %}
+                    <a href="{% url 'edit_post' post.id %}" class="btn btn-secondary btn-sm">Edit</a>
+                    <a href="{% url 'delete_post' post.id %}" class="btn btn-danger btn-sm">Delete</a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
         {% endfor %}
 

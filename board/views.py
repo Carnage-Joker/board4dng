@@ -200,3 +200,23 @@ def reject_post(request, post_id):
     post.delete()
     messages.success(request, "The post has been rejected and deleted.")
     return redirect('moderate_posts')
+
+
+def edit_message(request, message_id):
+    message = get_object_or_404(PrivateMessage, id=message_id)
+    if request.method == 'POST':
+        form = PrivateMessageForm(request.POST, instance=message)
+        if form.is_valid():
+            form.save()
+            return redirect('message_board')
+    else:
+        form = PrivateMessageForm(instance=message)
+    return render(request, 'board/edit_message.html', {'form': form})
+
+
+def delete_message(request, message_id):
+    message = get_object_or_404(PrivateMessage, id=message_id)
+    if request.method == 'POST':
+        message.delete()
+        return redirect('message_board')
+    return render(request, 'board/delete_message.html', {'message': message})
