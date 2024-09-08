@@ -1,21 +1,22 @@
 {% extends 'board/base.html' %}
 
-{% block title %}Moderate Posts{% endblock %}
-
 {% block content %}
-<h2 class="text-center">Moderate Flagged Posts</h2>
-
-<ul class="list-group">
-    {% for post in flagged_posts %}
-    <li class="list-group-item">
-        <h4>{{ post.title }}</h4>
-        <p>{{ post.content }}</p>
-        <small class="text-muted">Posted by {{ post.author.username }} on {{ post.created_at }}</small>
-        <div class="mt-2">
-            <a href="{% url 'approve_post' post.id %}" class="btn btn-success btn-sm">Approve</a>
-            <a href="{% url 'reject_post' post.id %}" class="btn btn-danger btn-sm">Reject</a>
-        </div>
-    </li>
-    {% endfor %}
-</ul>
+<div class="container">
+    <h2>Moderate Flagged Posts</h2>
+    <ul class="list-group">
+        {% for post in flagged_posts %}
+        <li class="list-group-item">
+            <h3>{{ post.title }}</h3>
+            <p>{{ post.content }}</p>
+            <small>Flagged by {{ post.author.username }} on {{ post.created_at }}</small>
+            <div class="mt-2">
+                <a href="{% url 'approve_post' post.id %}" class="btn btn-success">Approve</a>
+                <a href="{% url 'reject_post' post.id %}" class="btn btn-danger">Reject</a>
+            </div>
+        </li>
+        {% empty %}
+        <li class="list-group-item">No posts to moderate at the moment.</li>
+        {% endfor %}
+    </ul>
+</div>
 {% endblock %}

@@ -19,6 +19,8 @@ urlpatterns = [
     path('flag/<int:post_id>/', views.flag_post, name='flag_post'),
     path('create_message/', views.create_message, name='create_message'),
     path('create_post/', views.create_post, name='create_post'),
-    path('edit_message/<int:message_id>/', views.edit_message, name='edit_message'),
-    path('delete_message/<int:message_id>/', views.delete_message, name='delete_message'),
+    path('edit_message/<int:message_id>/',
+         views.edit_message, name='edit_message'),
+    path('delete_message/<int:message_id>/',
+         views.delete_message, name='delete_message'),
 ]

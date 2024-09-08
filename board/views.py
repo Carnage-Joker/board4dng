@@ -137,21 +137,31 @@ def create_post(request):
         form = PostForm(request.POST)
         if form.is_valid():
             content = form.cleaned_data['content']
+            post = form.save(commit=False)
+            post.author = request.user
+
             if contains_banned_words(content):
-                post = form.save(commit=False)
-                flag_post(post, post_id)
+                # Flag the post for review
+                post.is_flagged = True
+                post.save()
+
+                # Notify the moderator
+                send_to_moderator(post)
+
                 messages.info(
                     request, "Your post has been flagged for review. It will be reviewed by a moderator before being published.")
-                # Send the post to the moderator for review
-                send_to_moderator(post)
-                return render(request, 'board/create_post.html', {'form': form})
-            else:
-                post = form.save(commit=False)
-                post.author = request.user
-                post.save()
                 return redirect('message_board')
+            else:
+                # No banned words, post directly
+                post.is_flagged = False
+                post.is_moderated = True
+                post.save()
+                messages.success(request, "Your post has been published!")
+                return redirect('message_board')
+
     else:
         form = PostForm()
+
     return render(request, 'board/create_post.html', {'form': form})
 
 
@@ -167,36 +177,43 @@ def flag_post(request, post_id):
 def moderate_posts(request):
     if not request.user.is_staff:
         messages.error(
-            request, "You do not have permission to view this page.")
+            request, "You do not have permission to moderate posts.")
         return redirect('message_board')
 
+    # Get all flagged posts that are not yet moderated
     flagged_posts = Post.objects.filter(is_flagged=True, is_moderated=False)
+
     return render(request, 'board/moderate_posts.html', {'flagged_posts': flagged_posts})
 
 
 @login_required
 def approve_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
+
     if not request.user.is_staff:
         messages.error(
             request, "You do not have permission to approve this post.")
         return redirect('moderate_posts')
 
+    # Approve the post
     post.is_moderated = True
     post.is_flagged = False
     post.save()
-    messages.success(request, "The post has been approved.")
+    messages.success(
+        request, "The post has been approved and is now visible to everyone.")
     return redirect('moderate_posts')
 
 
 @login_required
 def reject_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
+
     if not request.user.is_staff:
         messages.error(
             request, "You do not have permission to reject this post.")
         return redirect('moderate_posts')
 
+    # Delete the post
     post.delete()
     messages.success(request, "The post has been rejected and deleted.")
     return redirect('moderate_posts')
