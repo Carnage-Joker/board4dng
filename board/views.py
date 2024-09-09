@@ -19,12 +19,9 @@ from .utils import send_to_moderator
 
 def load_banned_words(file_path=None):
     if not file_path:
-        # Get the full path to the bad_words.txt inside the app directory
         file_path = os.path.join(settings.BASE_DIR, 'board', 'bad_words.txt')
 
     with open(file_path, "r") as file:
-
-        # Read the file content and split by comma, then clean up each word
         return [word.strip().replace('"', '').lower() for word in file.read().split(',')]
 
 
@@ -32,12 +29,107 @@ BANNED_WORDS = load_banned_words()
 
 
 def contains_banned_words(content):
-    return any(word in content.lower() for word in BANNED_WORDS)
+    for word in BANNED_WORDS:
+        if word in content.lower():
+            return word
+    return None
+
+
+@login_required
+def create_post(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            content = form.cleaned_data['content']
+            post = form.save(commit=False)
+            post.author = request.user
+
+            banned_word = contains_banned_words(content)
+            if banned_word:
+                post.is_flagged = True
+                post.is_moderated = False
+                post.save()
+                # Send notification to moderators
+                send_to_moderator(post)
+                messages.warning(request, f"Your post contains inappropriate content: '{
+                                 banned_word}'. It has been flagged for moderation.")
+                                 
+                return redirect('message_board')
+
+            if request.user.is_staff or request.user.profile.is_trusted_user:
+                post.is_moderated = True
+            else:
+                post.is_flagged = False
+                post.is_moderated = True
+
+            post.save()
+
+            # Notify moderators or others
+            send_mail(
+                subject='New Post Created',
+                message=f"A new post has been created by {
+                    post.author.username}.",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[settings.MODERATOR_EMAIL],
+                fail_silently=False,
+            )
+            messages.success(
+                request, "Your post has been successfully published!")
+            return redirect('message_board')
+    else:
+        form = PostForm()
+    return render(request, 'board/create_post.html', {'form': form})
+
+
+@login_required
+def moderate_posts(request):
+    if not request.user.is_staff:
+        messages.error(
+            request, "You do not have permission to moderate posts.")
+        return redirect('message_board')
+
+    # Get all flagged posts for moderation
+    flagged_posts = Post.objects.filter(is_flagged=True, is_moderated=False)
+    paginator = Paginator(flagged_posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'board/moderate_posts.html', {'page_obj': page_obj})
+
+
+@login_required
+def approve_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    if not request.user.is_staff:
+        messages.error(
+            request, "You do not have permission to approve this post.")
+        return redirect('moderate_posts')
+
+    post.is_moderated = True
+    post.is_flagged = False
+    post.save()
+    messages.success(request, "The post has been approved and is now visible.")
+    return redirect('moderate_posts')
+
+
+@login_required
+def reject_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    if not request.user.is_staff:
+        messages.error(
+            request, "You do not have permission to reject this post.")
+        return redirect('moderate_posts')
+
+    post.delete()
+    messages.success(request, "The post has been rejected and deleted.")
+    return redirect('moderate_posts')
 
 
 def welcome(request):
     return render(request, 'board/welcome.html')
-    
+
 
 def register(request):
     if request.method == 'POST':
@@ -160,100 +252,12 @@ def create_message(request):
     return render(request, 'board/create_message.html', {'form': form})
 
 
-@login_required
-def create_post(request):
-    if request.method == 'POST':
-        form = PostForm(request.POST)
-        if form.is_valid():
-            content = form.cleaned_data['content']
-            post = form.save(commit=False)
-            post.author = request.user
-
-            if contains_banned_words(content):
-                post.is_flagged = True
-                post.save()
-
-                send_to_moderator(post)
-
-                messages.info(
-                    request, "Your post has been flagged for review.")
-                return redirect('message_board')
-            else:
-                post.is_flagged = False
-                post.is_moderated = True
-                post.save()
-
-                # Send notification to moderators or subscribers
-                send_mail(
-                    subject='New Post Created',
-                    message=f"A new post has been created by {
-                        post.author.username}.",
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    # You can add more recipients or subscribers here
-                    recipient_list=[settings.MODERATOR_EMAIL],
-                    fail_silently=False,
-                )
-
-                messages.success(request, "Your post has been published!")
-                return redirect('message_board')
-    else:
-        form = PostForm()
-
-    return render(request, 'board/create_post.html', {'form': form})
-
-
 def flag_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     post.is_flagged = True
     post.save()
     messages.info(request, "The post has been flagged for review.")
     return redirect('message_board')
-
-
-@login_required
-def moderate_posts(request):
-    if not request.user.is_staff:
-        messages.error(
-            request, "You do not have permission to moderate posts.")
-        return redirect('message_board')
-
-    # Get all flagged posts that are not yet moderated
-    flagged_posts = Post.objects.filter(is_flagged=True, is_moderated=False)
-
-    return render(request, 'board/moderate_posts.html', {'flagged_posts': flagged_posts})
-
-
-@login_required
-def approve_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-
-    if not request.user.is_staff:
-        messages.error(
-            request, "You do not have permission to approve this post.")
-        return redirect('moderate_posts')
-
-    # Approve the post
-    post.is_moderated = True
-    post.is_flagged = False
-    post.save()
-    messages.success(
-        request, "The post has been approved and is now visible to everyone.")
-    return redirect('moderate_posts')
-
-
-@login_required
-def reject_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-
-    if not request.user.is_staff:
-        messages.error(
-            request, "You do not have permission to reject this post.")
-        return redirect('moderate_posts')
-
-    # Delete the post
-    post.delete()
-    messages.success(request, "The post has been rejected and deleted.")
-    return redirect('moderate_posts')
 
 
 def edit_message(request, message_id):
@@ -275,3 +279,14 @@ def delete_message(request, message_id):
         return redirect('message_board')
     return render(request, 'board/delete_message.html', {'message': message})
 # ...
+
+
+@login_required
+def view_private_messages(request):
+    messages_list = PrivateMessage.objects.filter(
+        receiver=request.user).order_by('-created_at')
+    paginator = Paginator(messages_list, 10)  # Show 10 messages per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'board/private_messages.html', {'page_obj': page_obj})

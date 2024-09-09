@@ -21,14 +21,12 @@ class PrivateMessage(models.Model):
     
 
 class Post(models.Model):
-    title = models.CharField(max_length=100)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    author = models.ForeignKey(
-        User, on_delete=models.SET_DEFAULT, default=get_default_user
-    )
-    is_moderated = models.BooleanField(default=False)
     is_flagged = models.BooleanField(default=False)
+    is_moderated = models.BooleanField(default=False)
+    is_trusted_user = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.title
+        return self.content[:20]
