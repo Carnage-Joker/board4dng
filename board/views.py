@@ -1,4 +1,5 @@
-
+import os
+from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
@@ -14,9 +15,14 @@ from .utils import send_to_moderator
 # Load your banned words list from the file
 
 
-def load_banned_words(file_path="bad_words.txt"):
+def load_banned_words(file_path=None):
+    if not file_path:
+        # Get the full path to the bad_words.txt inside the app directory
+        file_path = os.path.join(settings.BASE_DIR, 'board', 'bad_words.txt')
+
     with open(file_path, "r") as file:
-        return [line.strip().lower() for line in file.readlines()]
+        # Read the file content and split by comma, then clean up each word
+        return [word.strip().replace('"', '').lower() for word in file.read().split(',')]
 
 
 BANNED_WORDS = load_banned_words()
@@ -48,7 +54,15 @@ def profile(request, username):
     posts = Post.objects.filter(author=user)
     private_messages = PrivateMessage.objects.filter(
         sender=user)  # Adjust this query as needed
+    if request.user.is_staff:
+        flagged_posts = Post.objects.filter(
+            is_flagged=True).order_by('-created_at')
+    else:
+        flagged_posts = []
+
     context = {
+        'flagged_posts': flagged_posts,
+        'is_staff': request.user.is_staff,
         'user_profile': user,
         'posts': posts,
         'private_messages': private_messages,
@@ -59,14 +73,14 @@ def profile(request, username):
 
 @login_required
 def message_board(request):
-    posts_list = Post.objects.all().order_by('-created_at')
+    # Filter to get only posts that are not flagged and order them by 'created_at'
+    posts_list = Post.objects.filter(is_flagged=False).order_by('created_at')
     paginator = Paginator(posts_list, 5)  # Show 5 posts per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     context = {
         'page_obj': page_obj,
-        'posts': posts_list
     }
     return render(request, 'board/message_board.html', context)
 

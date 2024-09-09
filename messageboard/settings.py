@@ -86,9 +86,9 @@ EMAIL_USE_SSL = True
 EMAIL_HOST = 'mail.thepinkbook.com.au'
 EMAIL_PORT = 465
 EMAIL_HOST_USER = config(
-    'EMAIL_HOST_USER', default='moderator@thepinkbook.com.au')
+    'EMAIL_HOST_USER', default='noreplyaccactivate@thepinkbook.com.au')
 EMAIL_HOST_PASSWORD = config(
-    'EMAIL_HOST_PASSWORD', default='your-email-password')  # Load from .env
+    'EMAIL_HOST_PASSWORD')  # Load from .env
 DEFAULT_FROM_EMAIL = 'noreplyaccactivate@thepinkbook.com.au'
 MODERATOR_EMAIL = 'moderator@thepinkbook.com.au'
 

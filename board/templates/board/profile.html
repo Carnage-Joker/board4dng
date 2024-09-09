@@ -26,7 +26,7 @@
     </ul>
 
     <h2>{{ user_profile.username }}'s Private Messages</h2>
-    <ul class="list-group">
+    <ul class="list-group mb-4">
         {% for private_message in private_messages %}
         <li class="list-group-item post">
             <h3>{{ private_message.title }}</h3>
@@ -43,5 +43,25 @@
         <li class="list-group-item">No private messages available.</li>
         {% endfor %}
     </ul>
+
+    {% if request.user.is_staff %}
+    <h2>Flagged Posts for Moderation</h2>
+    <ul class="list-group mb-4">
+        {% for flagged_post in flagged_posts %}
+        <li class="list-group-item post">
+            <h3>{{ flagged_post.title }}</h3>
+            <p>{{ flagged_post.content }}</p>
+            <small class="text-muted">Flagged by {{ flagged_post.author.username }}</small>
+            <div class="mt-2">
+                <a href="{% url 'approve_post' flagged_post.id %}" class="btn btn-success btn-sm">Approve</a>
+                <a href="{% url 'reject_post' flagged_post.id %}" class="btn btn-danger btn-sm">Reject</a>
+            </div>
+        </li>
+        {% empty %}
+        <li class="list-group-item">No flagged posts for moderation.</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
 </div>
 {% endblock %}

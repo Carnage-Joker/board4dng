@@ -12,6 +12,7 @@
 <div class="row justify-content-center">
     <div class="col-md-8">
         {% for post in page_obj %}
+        
         <div class="card mb-3">
             <div class="card-body">
                 <h3>{{ post.title }}</h3>
@@ -22,6 +23,7 @@
                     <a href="{% url 'edit_post' post.id %}" class="btn btn-secondary btn-sm">Edit</a>
                     <a href="{% url 'delete_post' post.id %}" class="btn btn-danger btn-sm">Delete</a>
                     {% endif %}
+           
                 </div>
             </div>
         </div>
