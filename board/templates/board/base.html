@@ -215,6 +215,19 @@
             });
         });
     </script>
+<link rel="manifest" href="{% static 'manifest.json' %}">
+<meta name="theme-color" content="#ff66cc">
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/static/serviceworker.js')
+      .then(function(registration) {
+        console.log('Service Worker registered with scope:', registration.scope);
+      })
+      .catch(function(error) {
+        console.log('Service Worker registration failed:', error);
+      });
+  }
+</script>
 
 </body>
 

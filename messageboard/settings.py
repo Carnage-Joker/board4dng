@@ -49,7 +49,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "messageboard.wsgi.application"
 
-PWA_APP_NAME = 'MyMessageBoardApp'
+PWA_APP_NAME = 'board4dng'
 PWA_APP_DESCRIPTION = "A sleek and futuristic message board app."
 PWA_APP_THEME_COLOR = '#ff66cc'  # Customize with your preferred color
 PWA_APP_BACKGROUND_COLOR = '#ffffff'

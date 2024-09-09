@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "Message Board App",
   "short_name": "MsgBoard",
   "start_url": "/",
@@ -8,11 +9,27 @@
   "icons": [
     {
       "src": "/static/icons/icon-192x192.png",
+=======
+  "name": "Board4DNG",
+  "short_name": "Board",
+  "description": "A sleek and futuristic message board app.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff66cc",
+  "icons": [
+    {
+      "src": "/static/images/icons/icon-192x192.png",
+>>>>>>> c28221110546ac4323e7cd76486121e1b7cfb71e
       "sizes": "192x192",
       "type": "image/png"
     },
     {
+<<<<<<< HEAD
       "src": "/static/icons/icon-512x512.png",
+=======
+      "src": "/static/images/icons/icon-512x512.png",
+>>>>>>> c28221110546ac4323e7cd76486121e1b7cfb71e
       "sizes": "512x512",
       "type": "image/png"
     }
