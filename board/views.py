@@ -1,10 +1,12 @@
+from django.core.mail import send_mail
 import os
+
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.contrib import messages
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -21,6 +23,7 @@ def load_banned_words(file_path=None):
         file_path = os.path.join(settings.BASE_DIR, 'board', 'bad_words.txt')
 
     with open(file_path, "r") as file:
+
         # Read the file content and split by comma, then clean up each word
         return [word.strip().replace('"', '').lower() for word in file.read().split(',')]
 
@@ -31,9 +34,11 @@ BANNED_WORDS = load_banned_words()
 def contains_banned_words(content):
     return any(word in content.lower() for word in BANNED_WORDS)
 
+
 def welcome(request):
     return render(request, 'board/welcome.html')
     
+
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -68,7 +73,6 @@ def profile(request, username):
         'private_messages': private_messages,
     }
     return render(request, 'board/profile.html', context)
-
 
 
 @login_required
@@ -133,8 +137,19 @@ def create_message(request):
             private_message = form.save(commit=False)
             private_message.sender = request.user
             private_message.save()
+
+            # Send email notification
+            send_mail(
+                subject='New Private Message',
+                message=f"You have a new private message from {
+                    private_message.sender.username}.",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                # Assuming PrivateMessage model has a receiver field.
+                recipient_list=[private_message.receiver.email],
+                fail_silently=False,
+            )
+
             messages.success(request, 'Your message has been sent!')
-            # Redirect to your message board or another relevant page
             return redirect('message_board')
         else:
             messages.error(
@@ -155,24 +170,32 @@ def create_post(request):
             post.author = request.user
 
             if contains_banned_words(content):
-                # Flag the post for review
                 post.is_flagged = True
                 post.save()
 
-                # Notify the moderator
                 send_to_moderator(post)
 
                 messages.info(
-                    request, "Your post has been flagged for review. It will be reviewed by a moderator before being published.")
+                    request, "Your post has been flagged for review.")
                 return redirect('message_board')
             else:
-                # No banned words, post directly
                 post.is_flagged = False
                 post.is_moderated = True
                 post.save()
+
+                # Send notification to moderators or subscribers
+                send_mail(
+                    subject='New Post Created',
+                    message=f"A new post has been created by {
+                        post.author.username}.",
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    # You can add more recipients or subscribers here
+                    recipient_list=[settings.MODERATOR_EMAIL],
+                    fail_silently=False,
+                )
+
                 messages.success(request, "Your post has been published!")
                 return redirect('message_board')
-
     else:
         form = PostForm()
 
@@ -251,3 +274,4 @@ def delete_message(request, message_id):
         message.delete()
         return redirect('message_board')
     return render(request, 'board/delete_message.html', {'message': message})
+# ...
