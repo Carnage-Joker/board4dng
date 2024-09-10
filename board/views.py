@@ -17,18 +17,25 @@ from .utils import send_to_moderator
 # Load your banned words list from the file
 
 
+import os
+from django.conf import settings
+
+
 def load_banned_words(file_path=None):
     if not file_path:
+        # Set default file path if none is provided
         file_path = os.path.join(settings.BASE_DIR, 'board', 'bad_words.txt')
 
     with open(file_path, "r") as file:
-        return [word.strip().replace('"', '').lower() for word in file.read().split(',')]
+        # Read the file line by line and strip any extra whitespace
+        return [word.strip().lower() for word in file.readlines()]
 
 
 BANNED_WORDS = load_banned_words()
 
 
 def contains_banned_words(content):
+    # Check if any banned word is found in the content
     for word in BANNED_WORDS:
         if word in content.lower():
             return word
@@ -51,9 +58,7 @@ def create_post(request):
                 post.save()
                 # Send notification to moderators
                 send_to_moderator(post)
-                messages.warning(request, f"Your post contains inappropriate content: '{
-                                 banned_word}'. It has been flagged for moderation.")
-                                 
+                messages.warning(request, f"Your post contains inappropriate content: '{banned_word}'. It has been flagged for moderation.")
                 return redirect('message_board')
 
             if request.user.is_staff or request.user.profile.is_trusted_user:
@@ -67,14 +72,12 @@ def create_post(request):
             # Notify moderators or others
             send_mail(
                 subject='New Post Created',
-                message=f"A new post has been created by {
-                    post.author.username}.",
+                message=f"A new post has been created by {post.author.username}.",
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[settings.MODERATOR_EMAIL],
                 fail_silently=False,
             )
-            messages.success(
-                request, "Your post has been successfully published!")
+            messages.success(request, "Your post has been successfully published!")
             return redirect('message_board')
     else:
         form = PostForm()
