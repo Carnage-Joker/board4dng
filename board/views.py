@@ -1,3 +1,5 @@
+from .forms import CustomUserCreationForm  # Import the custom form
+from django.shortcuts import render, redirect
 from django.core.mail import send_mail
 import os
 
@@ -131,16 +133,13 @@ def welcome(request):
 
 def register(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('message_board')
-        else:
-            messages.error(
-                request, "Registration failed. Please correct the error below.")
+            form.save()
+            # Redirect to login or another page after registration
+            return redirect('login')
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
     return render(request, 'board/register.html', {'form': form})
 
 
