@@ -133,10 +133,15 @@ def register(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            # Redirect to login or another page after registration
+            messages.success(
+                request, "Registration successful. Please log in.")
             return redirect('login')
+        else:
+            messages.error(
+                request, "There was an error with your registration.")
     else:
         form = CustomUserCreationForm()
+
     return render(request, 'board/register.html', {'form': form})
 
 
