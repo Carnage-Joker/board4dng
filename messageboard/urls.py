@@ -5,10 +5,9 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # added a trailing slash for consistency
-    path('home/', include('board.urls')),
+    # Explicit path for message board
     path('messageboard/', include('board.urls')),
-    path('', include('pwa.urls')),  # PWA-related URLs
+    path('pwa/', include('pwa.urls')),  # Explicit path for PWA URLs
 ]
 
 # Only serve static and media files in development (debug mode)
