@@ -8,7 +8,11 @@ class CustomUserAdmin(UserAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
     model = User
+<<<<<<< HEAD
     list_display = ['email', 'username', 'is_staff', 'is_active']
+=======
+    list_display = ['email', 'username', 'is_staff']
+>>>>>>> abc58840565bea23e3a5fa530a64db1130824f99
 
 
 
