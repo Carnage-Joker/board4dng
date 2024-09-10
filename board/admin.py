@@ -11,9 +11,6 @@ class CustomUserAdmin(UserAdmin):
     list_display = ['email', 'username', 'is_staff', 'is_active']
 
 
-admin.site.register(User, CustomUserAdmin)
-
-
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
