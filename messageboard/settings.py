@@ -191,6 +191,7 @@ MODERATOR_EMAIL = 'moderator@thepinkbook.com.au'
 # Authentication settings
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'message_board'
+AUTH_USER_MODEL = 'board.User'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

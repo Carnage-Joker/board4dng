@@ -6,19 +6,14 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import PostForm, PrivateMessageForm
-from .models import Post, PrivateMessage
+from .models import Post, PrivateMessage, User
 from .utils import send_to_moderator
 
 # Load your banned words list from the file
-
-
-import os
-from django.conf import settings
 
 
 def load_banned_words(file_path=None):

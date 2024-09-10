@@ -1,7 +1,7 @@
 from django import forms
 from .models import Post
 from .models import PrivateMessage  # Assuming you have a PrivateMessage model
-from django.contrib.auth.models import User
+from .models import User  # Ensure this imports your custom user model
 
 
 class PrivateMessageForm(forms.ModelForm):
@@ -11,6 +11,7 @@ class PrivateMessageForm(forms.ModelForm):
     class Meta:
         model = PrivateMessage
         fields = ['recipient', 'content']
+
 
 
 class PostForm(forms.ModelForm):
