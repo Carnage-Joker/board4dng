@@ -84,7 +84,7 @@ PWA_APP_ICONS = [
         'sizes': '192x192'
     },
     {
-        'src': '/static/images/icons/icon-384x384.png',
+        'src': '/static/images/icons/icon-383x384.png',  # Updated from 384x384
         'sizes': '384x384'
     },
     {
@@ -92,6 +92,7 @@ PWA_APP_ICONS = [
         'sizes': '512x512'
     }
 ]
+
 PWA_APP_ICONS_APPLE = [
     {
         'src': '/static/images/icons/icon-180x180.png',
@@ -100,46 +101,47 @@ PWA_APP_ICONS_APPLE = [
 ]
 PWA_APP_SPLASH_SCREEN = [
     {
-        'src': '/static/images/icons/splash-640x1136.png',
+        'src': '/static/images/icons/4_iPhone_SE_iPod_touch_5th_generation.png',  # Updated file
         'media': '(device-width: 320px) and (device-height: 568px)'
     },
     {
-        'src': '/static/images/icons/splash-750x1334.png',
+        'src': '/static/images/icons/4_iPhone_7_Plus_iPhone_6s_Plus.png',  # Updated file
         'media': '(device-width: 375px) and (device-height: 667px)'
     },
     {
-        'src': '/static/images/icons/splash-1242x2208.png',
+        'src': '/static/images/icons/12.9_iPad_Pro_portrait.png',  # Updated file
         'media': '(device-width: 414px) and (device-height: 736px)'
     },
     {
-        'src': '/static/images/icons/splash-1125x2436.png',
+        'src': '/static/images/icons/8.3_iPad_Mini_portrait.png',  # Updated file
         'media': '(device-width: 375px) and (device-height: 812px)'
     },
     {
-        'src': '/static/images/icons/splash-828x1792.png',
+        'src': '/static/images/icons/iPhone_8_iPhone_7_iPhone_6s.png',  # Updated file
         'media': '(device-width: 414px) and (device-height: 896px)'
     },
     {
-        'src': '/static/images/icons/splash-1242x2688.png',
+        'src': '/static/images/icons/12.9_iPad_Pro_portrait.png',  # Updated file
         'media': '(device-width: 414px) and (device-height: 896px)'
     },
     {
-        'src': '/static/images/icons/splash-1536x2048.png',
+        'src': '/static/images/icons/11_iPad_Pro_M4_portrait.png',  # Updated file
         'media': '(device-width: 768px) and (device-height: 1024px)'
     },
     {
-        'src': '/static/images/icons/splash-1668x2224.png',
+        'src': '/static/images/icons/10.5_iPad_Air_portrait.png',  # Updated file
         'media': '(device-width: 834px) and (device-height: 1112px)'
     },
     {
-        'src': '/static/images/icons/splash-1668x2388.png',
+        'src': '/static/images/icons/13_iPad_Pro_M4_portrait.png',  # Updated file
         'media': '(device-width: 834px) and (device-height: 1194px)'
     },
     {
-        'src': '/static/images/icons/splash-2048x2732.png',
+        'src': '/static/images/icons/9.7_iPad_Pro_7.9_iPad_mini.png',  # Updated file
         'media': '(device-width: 1024px) and (device-height: 1366px)'
     }
 ]
+
 PWA_APP_DIR = 'ltr'
 PWA_APP_LANG = 'en-US'
 
@@ -150,7 +152,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 # Load the secret key from the .env file
 SECRET_KEY = config('SECRET_KEY')
 
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = ['board4dng.herokuapp.com', 'localhost', '127.0.0.1']
 
