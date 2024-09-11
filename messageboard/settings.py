@@ -4,7 +4,7 @@ import django_heroku
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 INSTALLED_APPS = [
@@ -173,8 +173,12 @@ DATABASES = {
 # Static files configuration
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    # This assumes your BASE_DIR is correctly set.
+    os.path.join(BASE_DIR, 'static'),
+]
+
 
 # Ensure service-worker.js and manifest.json are in the appropriate static directory
 
