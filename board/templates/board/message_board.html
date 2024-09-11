@@ -6,7 +6,7 @@
 <h1 class="text-center mb-4">Message Board</h1>
 
 <div class="text-center mb-4">
-    <p><a href="{% url 'create_post' %}" class="btn btn-primary">Write a New Post</a></p>
+    <p><a href="{% url 'board:create_post' %}" class="btn btn-primary">Write a New Post</a></p>
 </div>
 
 <div class="row justify-content-center">
@@ -20,10 +20,9 @@
                 <small class="text-muted">Posted by {{ post.author.username }} on {{ post.created_at }}</small>
                 <div class="mt-2">
                     {% if request.user == post.author %}
-                    <a href="{% url 'edit_post' post.id %}" class="btn btn-secondary btn-sm">Edit</a>
-                    <a href="{% url 'delete_post' post.id %}" class="btn btn-danger btn-sm">Delete</a>
+                    <a href="{% url 'board:edit_post' post.id %}" class="btn btn-secondary btn-sm">Edit</a>
+                    <a href="{% url 'board:delete_post' post.id %}" class="btn btn-danger btn-sm">Delete</a>
                     {% endif %}
-           
                 </div>
             </div>
         </div>

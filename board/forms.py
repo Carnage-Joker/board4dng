@@ -3,14 +3,13 @@ from .models import Post
 from .models import PrivateMessage  # Assuming you have a PrivateMessage model
 from .models import User  # Ensure this imports your custom user model
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import User  # Your custom user model
 
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User  # Use your custom User model
         # Fields to include in the registration form
-        fields = ('username', 'email')
+        fields = ('username', 'email', 'password1', 'password2')
 
 
 class CustomUserChangeForm(UserChangeForm):
