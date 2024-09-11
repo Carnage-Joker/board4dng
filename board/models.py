@@ -8,7 +8,7 @@ def get_default_user():
 
 
 class UserManager(BaseUserManager):
-    # Custom manager for handling user creation, including superusers    
+    # Custom manager for handling user creation, including superusers
     def create_user(self, email, username, password=None):
         if email is None:
             raise ValueError('Users must have an email address')
@@ -17,6 +17,14 @@ class UserManager(BaseUserManager):
 
         user = self.model(email=self.normalize_email(email), username=username)
         user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, username, password=None):
+        user = self.create_user(
+            email=email, username=username, password=password)
+        user.is_staff = True
+        user.is_superuser = True
         user.save(using=self._db)
         return user
 
