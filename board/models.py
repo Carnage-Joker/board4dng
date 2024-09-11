@@ -1,4 +1,5 @@
 
+from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 
@@ -35,6 +36,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_moderator = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    date_joined = models.DateTimeField(default=timezone.now)  # Add this line
 
     objects = UserManager()
 
