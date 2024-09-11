@@ -157,11 +157,11 @@
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     {% if user.is_authenticated %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'profile' user.username %}">Profile</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'create_post' %}">New Post</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'board:profile' user.username %}">Profile</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'board:create_post' %}">New Post</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'board:logout' %}">Logout</a></li>
                     {% else %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'board:login' %}">Login</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'board:register' %}">Register</a></li>
                     {% endif %}
                 </ul>
