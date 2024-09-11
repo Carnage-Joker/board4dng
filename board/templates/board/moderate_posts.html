@@ -10,8 +10,8 @@
             <p>{{ post.content }}</p>
             <small>Flagged by {{ post.author.username }} on {{ post.created_at }}</small>
             <div class="mt-2">
-                <a href="{% url 'approve_post' post.id %}" class="btn btn-success">Approve</a>
-                <a href="{% url 'reject_post' post.id %}" class="btn btn-danger">Reject</a>
+                <a href="{% url 'board:approve_post' post.id %}" class="btn btn-success">Approve</a>
+                <a href="{% url 'board:reject_post' post.id %}" class="btn btn-danger">Reject</a>
             </div>
         </li>
         {% empty %}
@@ -24,8 +24,8 @@
 {% for post in page_obj %}
   <div>
     <p>{{ post.content }}</p>
-    <a href="{% url 'approve_post' post.id %}">Approve</a> |
-    <a href="{% url 'reject_post' post.id %}">Reject</a>
+    <a href="{% url 'board:approve_post' post.id %}">Approve</a> |
+    <a href="{% url 'board:reject_post' post.id %}">Reject</a>
   </div>
 {% endfor %}
 

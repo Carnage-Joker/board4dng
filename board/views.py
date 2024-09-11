@@ -53,7 +53,7 @@ def create_post(request):
                 # Send notification to moderators
                 send_to_moderator(post)
                 messages.warning(request, f"Your post contains inappropriate content: '{banned_word}'. It has been flagged for moderation.")
-                return redirect('message_board')
+                return redirect('board:message_board')
 
             if request.user.is_staff or request.user.profile.is_trusted_user:
                 post.is_moderated = True
@@ -72,7 +72,7 @@ def create_post(request):
                 fail_silently=False,
             )
             messages.success(request, "Your post has been successfully published!")
-            return redirect('message_board')
+            return redirect('board:message_board')
     else:
         form = PostForm()
     return render(request, 'board/create_post.html', {'form': form})
@@ -83,7 +83,7 @@ def moderate_posts(request):
     if not request.user.is_staff:
         messages.error(
             request, "You do not have permission to moderate posts.")
-        return redirect('message_board')
+        return redirect('board:message_board')
 
     # Get all flagged posts for moderation
     flagged_posts = Post.objects.filter(is_flagged=True, is_moderated=False)
@@ -101,13 +101,13 @@ def approve_post(request, post_id):
     if not request.user.is_staff:
         messages.error(
             request, "You do not have permission to approve this post.")
-        return redirect('moderate_posts')
+        return redirect('board:moderate_posts')
 
     post.is_moderated = True
     post.is_flagged = False
     post.save()
     messages.success(request, "The post has been approved and is now visible.")
-    return redirect('moderate_posts')
+    return redirect('board:moderate_posts')
 
 
 @login_required
@@ -117,11 +117,11 @@ def reject_post(request, post_id):
     if not request.user.is_staff:
         messages.error(
             request, "You do not have permission to reject this post.")
-        return redirect('moderate_posts')
+        return redirect('board:moderate_posts')
 
     post.delete()
     messages.success(request, "The post has been rejected and deleted.")
-    return redirect('moderate_posts')
+    return redirect('board:moderate_posts')
 
 
 def welcome(request):
@@ -135,7 +135,7 @@ def register(request):
             form.save()
             messages.success(
                 request, "Registration successful. Please log in.")
-            return redirect('login')
+            return redirect('board:login')
         else:
             messages.error(
                 request, "There was an error with your registration.")
@@ -187,7 +187,7 @@ def user_login(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('message_board')
+            return redirect('board:message_board')
         else:
             messages.error(request, "Invalid username or password.")
     return render(request, 'board/login.html')
@@ -195,7 +195,7 @@ def user_login(request):
 
 def user_logout(request):
     logout(request)
-    return redirect('login')
+    return redirect('board:login')
 
 
 @login_required
@@ -205,7 +205,7 @@ def edit_post(request, post_id):
         form = PostForm(request.POST, instance=post)
         if form.is_valid():
             form.save()
-            return redirect('message_board')
+            return redirect('board:message_board')
     else:
         form = PostForm(instance=post)
     return render(request, 'board/edit_post.html', {'form': form})
@@ -216,7 +216,7 @@ def delete_post(request, post_id):
     post = get_object_or_404(Post, id=post_id, author=request.user)
     if request.method == 'POST':
         post.delete()
-        return redirect('message_board')
+        return redirect('board:message_board')
     return render(request, 'board/delete_post.html', {'post': post})
 
 
@@ -241,7 +241,7 @@ def create_message(request):
             )
 
             messages.success(request, 'Your message has been sent!')
-            return redirect('message_board')
+            return redirect('board:message_board')
         else:
             messages.error(
                 request, 'There was an error sending your message. Please try again.')
@@ -256,7 +256,7 @@ def flag_post(request, post_id):
     post.is_flagged = True
     post.save()
     messages.info(request, "The post has been flagged for review.")
-    return redirect('message_board')
+    return redirect('board:message_board')
 
 
 def edit_message(request, message_id):
@@ -265,7 +265,7 @@ def edit_message(request, message_id):
         form = PrivateMessageForm(request.POST, instance=message)
         if form.is_valid():
             form.save()
-            return redirect('message_board')
+            return redirect('board:message_board')
     else:
         form = PrivateMessageForm(instance=message)
     return render(request, 'board/edit_message.html', {'form': form})
@@ -275,7 +275,7 @@ def delete_message(request, message_id):
     message = get_object_or_404(PrivateMessage, id=message_id)
     if request.method == 'POST':
         message.delete()
-        return redirect('message_board')
+        return redirect('board:message_board')
     return render(request, 'board/delete_message.html', {'message': message})
 # ...
 

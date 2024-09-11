@@ -15,8 +15,8 @@
             <small class="text-muted">Posted on {{ post.created_at }}</small>
             <div class="mt-2">
                 {% if request.user == post.author %}
-                <a href="{% url 'edit_post' post.id %}" class="btn btn-primary btn-sm">Edit</a>
-                <a href="{% url 'delete_post' post.id %}" class="btn btn-danger btn-sm">Delete</a>
+                <a href="{% url 'board:edit_post' post.id %}" class="btn btn-primary btn-sm">Edit</a>
+                <a href="{% url 'board:delete_post' post.id %}" class="btn btn-danger btn-sm">Delete</a>
                 {% endif %}
             </div>
         </li>
@@ -34,8 +34,8 @@
             <small class="text-muted">Sent on {{ private_message.created_at }}</small>
             <div class="mt-2">
                 {% if request.user == private_message.sender %}
-                <a href="{% url 'edit_message' private_message.id %}" class="btn btn-primary btn-sm">Edit</a>
-                <a href="{% url 'delete_message' private_message.id %}" class="btn btn-danger btn-sm">Delete</a>
+                <a href="{% url 'board:edit_message' private_message.id %}" class="btn btn-primary btn-sm">Edit</a>
+                <a href="{% url 'board:delete_message' private_message.id %}" class="btn btn-danger btn-sm">Delete</a>
                 {% endif %}
             </div>
         </li>
@@ -53,8 +53,8 @@
             <p>{{ flagged_post.content }}</p>
             <small class="text-muted">Flagged by {{ flagged_post.author.username }}</small>
             <div class="mt-2">
-                <a href="{% url 'approve_post' flagged_post.id %}" class="btn btn-success btn-sm">Approve</a>
-                <a href="{% url 'reject_post' flagged_post.id %}" class="btn btn-danger btn-sm">Reject</a>
+                <a href="{% url 'board:approve_post' flagged_post.id %}" class="btn btn-success btn-sm">Approve</a>
+                <a href="{% url 'board:reject_post' flagged_post.id %}" class="btn btn-danger btn-sm">Reject</a>
             </div>
         </li>
         {% empty %}
