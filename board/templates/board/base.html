@@ -148,31 +148,20 @@
     </script>
 
     <!-- Firebase Initialization and Push Notifications -->
-    <script>
-        // Initialize Firebase
+   <script>
+        // Initialize Firebase using values from Django context
         const firebaseConfig = {
-            apiKey: "{{ config('FIREBASE_API_KEY') }}",
-            authDomain: "{{ config('FIREBASE_AUTH_DOMAIN') }}",
-            projectId: "{{ config('FIREBASE_PROJECT_ID') }}",
-            storageBucket: "{{ config('FIREBASE_STORAGE_BUCKET') }}",
-            messagingSenderId: "{{ config('FIREBASE_MESSAGING_SENDER_ID') }}",
-            appId: "{{ config('FIREBASE_APP_ID') }}",
-            measurementId: "{{ config('FIREBASE_MEASUREMENT_ID') }}"
+            apiKey: "{{ firebase_config.apiKey }}",
+            authDomain: "{{ firebase_config.authDomain }}",
+            projectId: "{{ firebase_config.projectId }}",
+            storageBucket: "{{ firebase_config.storageBucket }}",
+            messagingSenderId: "{{ firebase_config.messagingSenderId }}",
+            appId: "{{ firebase_config.appId }}",
+            measurementId: "{{ firebase_config.measurementId }}"
         };
-
         firebase.initializeApp(firebaseConfig);
         const messaging = firebase.messaging();
-
-        // Request permission to send push notifications
-        messaging.requestPermission().then(function() {
-            console.log('Notification permission granted.');
-            return messaging.getToken();
-        }).then(function(token) {
-            console.log('FCM Token:', token);
-            // Send token to the server to subscribe the user for push notifications
-        }).catch(function(err) {
-            console.log('Unable to get permission to notify.', err);
-        });
+  
     </script>
 
 </body>

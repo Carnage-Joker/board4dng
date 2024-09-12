@@ -148,11 +148,21 @@ PWA_APP_LANG = 'en-US'
 SESSION_COOKIE_AGE = 1200  # 20 minutes
 SESSION_SAVE_EVERY_REQUEST = True
 
+FIREBASE_CONFIG = {
+    'apiKey': config('FIREBASE_API_KEY'),
+    'authDomain': config('FIREBASE_AUTH_DOMAIN'),
+    'projectId': config('FIREBASE_PROJECT_ID'),
+    'storageBucket': config('FIREBASE_STORAGE_BUCKET'),
+    'messagingSenderId': config('FIREBASE_MESSAGING_SENDER_ID'),
+    'appId': config('FIREBASE_APP_ID'),
+    'measurementId': config('FIREBASE_MEASUREMENT_ID')
+}
+
 
 # Load the secret key from the .env file
 SECRET_KEY = config('SECRET_KEY')
 
-DEBUG = True # config('DEBUG', default=False, cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = ['board4dng.herokuapp.com', 'localhost', '127.0.0.1']
 

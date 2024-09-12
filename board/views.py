@@ -150,8 +150,7 @@ def reject_post(request, post_id):
 
 
 def welcome(request):
-    return render(request, 'board/welcome.html')
-
+    return render(request, 'board/welcome.html', {'firebase_config': settings.FIREBASE_CONFIG})
 
 def register(request):
     if request.method == 'POST':
