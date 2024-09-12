@@ -28,6 +28,8 @@
     <h2>{{ user_profile.username }}'s Private Messages</h2>
     <ul class="list-group mb-4">
         {% for private_message in private_messages %}
+        # link to create a new private messages
+        <p><a href="{% url 'board:create_message' %}">Send a Private Message</a></p>
         <li class="list-group-item post">
             <h3>{{ private_message.title }}</h3>
             <p>{{ private_message.content }}</p>
@@ -46,6 +48,7 @@
 
     {% if request.user.is_staff %}
     <h2>Flagged Posts for Moderation</h2>
+    <p><a href="{% url 'board:moderate_posts' %}">Moderation Dashboard</a></p>
     <ul class="list-group mb-4">
         {% for flagged_post in flagged_posts %}
         <li class="list-group-item post">

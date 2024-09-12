@@ -1,3 +1,5 @@
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 import os
 
 from django.conf import settings
@@ -34,6 +36,16 @@ def contains_banned_words(content):
         if word in content.lower():
             return word
     return None
+
+
+@csrf_exempt
+def subscribe(request):
+    if request.method == 'POST':
+        token = request.POST.get('token')
+        # Save token to the database (e.g., to the user's profile or a dedicated model)
+        # User.objects.filter(id=request.user.id).update(fcm_token=token)
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=400)
 
 
 @login_required

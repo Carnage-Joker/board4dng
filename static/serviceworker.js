@@ -26,3 +26,26 @@ self.addEventListener('install', event => {
                             })
                     );
                 });
+// serviceworker.js
+
+// Listen for push events
+self.addEventListener('push', function (event) {
+    const data = event.data.json();
+    const title = data.title || 'New Message';
+    const options = {
+        body: data.body,
+        icon: '/static/images/icons/icon-128x128.png',
+        badge: '/static/images/icons/icon-128x128.png',
+    };
+    event.waitUntil(
+        self.registration.showNotification(title, options)
+    );
+});
+
+// Handle notification click
+self.addEventListener('notificationclick', function (event) {
+    event.notification.close();
+    event.waitUntil(
+        clients.openWindow('/')
+    );
+});

@@ -1,16 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Post</title>
-</head>
-<body>
-    <h2>Edit Post</h2>
+{% extends 'board/base.html' %}
+
+{% block title %}Edit Post{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center">Edit Your Post</h2>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Save Changes</button>
+        <div class="form-group">
+            <label for="title">Post Title</label>
+            <input type="text" class="form-control" id="title" name="title" value="{{ post.title }}">
+        </div>
+        <div class="form-group mt-3">
+            <label for="content">Post Content</label>
+            <textarea class="form-control" id="content" name="content" rows="5">{{ post.content }}</textarea>
+        </div>
+        <div class="text-center mt-3">
+            <button type="submit" class="btn btn-primary">Update Post</button>
+            <a href="{% url 'board:message_board' %}" class="btn btn-secondary">Cancel</a>
+        </div>
     </form>
-</body>
-</html>
+</div>
+{% endblock %}
+

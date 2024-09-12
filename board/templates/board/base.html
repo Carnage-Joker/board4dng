@@ -16,6 +16,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 
+    <!-- Firebase SDK for Messaging -->
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-messaging.js"></script>
+
     <!-- Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
@@ -75,46 +79,6 @@
             border-color: #bb86fc;
         }
 
-        /* Speech Bubble Styling */
-        .speech-bubble {
-            background-color: #ff66cc;
-            color: #fff;
-            position: fixed;
-            top: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            border-radius: 20px;
-            padding: 20px;
-            max-width: 300px;
-            font-size: 1.2rem;
-            text-align: center;
-            display: none; /* Hidden by default */
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .speech-bubble::after {
-            content: '';
-            position: absolute;
-            bottom: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 10px;
-            border-style: solid;
-            border-color: #ff66cc transparent transparent transparent;
-        }
-
-        .speech-bubble.show {
-            display: block; /* Show the speech bubble */
-            animation: fadeInOut 5s forwards;
-        }
-
-        @keyframes fadeInOut {
-            0% { opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-
         /* Gradient Background */
         body {
             background: linear-gradient(90deg, #ff66cc, #ff99ff, #ffb3ff, #ffccff);
@@ -137,14 +101,6 @@
     <!-- Dark Mode Toggle Button -->
     <div class="container mt-3 text-center">
         <button id="darkModeToggle" class="btn btn-secondary">Toggle Dark Mode</button>
-    </div>
-
-    <!-- Speech Bubble for Error Messages -->
-    <div id="errorMessage" class="speech-bubble"></div>
-
-    <!-- Fun Sparkle Welcome -->
-    <div class="container text-center mt-3">
-        <h1 class="sparkle">Welcome to the Coolest Message Board Ever!</h1>
     </div>
 
     <div class="container mt-4 neon-border">
@@ -189,33 +145,35 @@
         if (localStorage.getItem('darkMode') === 'true') {
             document.body.classList.add('dark-mode');
         }
- 
-        function showErrorMessage(message) {
-            const errorMessage = document.getElementById('errorMessage');
-            errorMessage.textContent = message;
-            errorMessage.classList.add('show');
-
-            setTimeout(() => {
-                errorMessage.classList.remove('show');
-            }, 5000); // Message disappears after 5 seconds
-        }
     </script>
 
-    <!-- Character Counter for Post Creation -->
+    <!-- Firebase Initialization and Push Notifications -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const textArea = document.getElementById('postContent');
-            const charCount = document.getElementById('charCount');
-            const maxChars = 500;
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "{{ config('FIREBASE_API_KEY') }}",
+            authDomain: "{{ config('FIREBASE_AUTH_DOMAIN') }}",
+            projectId: "{{ config('FIREBASE_PROJECT_ID') }}",
+            storageBucket: "{{ config('FIREBASE_STORAGE_BUCKET') }}",
+            messagingSenderId: "{{ config('FIREBASE_MESSAGING_SENDER_ID') }}",
+            appId: "{{ config('FIREBASE_APP_ID') }}",
+            measurementId: "{{ config('FIREBASE_MEASUREMENT_ID') }}"
+        };
 
-            if (textArea && charCount) {
-                textArea.addEventListener('input', () => {
-                    const remaining = maxChars - textArea.value.length;
-                    charCount.textContent = `${remaining} characters remaining`;
-                });
-            }
+        firebase.initializeApp(firebaseConfig);
+        const messaging = firebase.messaging();
+
+        // Request permission to send push notifications
+        messaging.requestPermission().then(function() {
+            console.log('Notification permission granted.');
+            return messaging.getToken();
+        }).then(function(token) {
+            console.log('FCM Token:', token);
+            // Send token to the server to subscribe the user for push notifications
+        }).catch(function(err) {
+            console.log('Unable to get permission to notify.', err);
         });
     </script>
+
 </body>
 </html>
-

@@ -3,9 +3,12 @@
 {% block title %}Welcome{% endblock %}
 
 {% block content %}
-<div class="text-center">
-    <h1 class="display-4">Welcome to the Sleek Message Board!</h1>
+ <div class="container text-center mt-3">
+        <h1 class="sparkle">Welcome to the Coolest Message Board Ever!</h1>
+        <p class="lead">A place to share your thoughts and ideas</p>
     <p class="lead">Join the conversation or send a private message.</p>
+    <p class="lead"> (members only, invitation only, subject to strict rules) </p>
     <a href="{% url 'board:register' %}" class="btn btn-primary">Get Started</a>
+    <p class="lead"><a href="{% url 'board:login' %}" class="btn btn-primary">Not my first rodeo</a></p>
 </div>
 {% endblock %}

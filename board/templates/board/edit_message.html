@@ -1,0 +1,20 @@
+{% extends 'board/base.html' %}
+
+{% block title %}Edit Message{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center">Edit Your Message</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="content">Message Content</label>
+            <textarea class="form-control" id="content" name="content" rows="5">{{ message.content }}</textarea>
+        </div>
+        <div class="text-center mt-3">
+            <button type="submit" class="btn btn-primary">Update Message</button>
+            <a href="{% url 'message_board' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
