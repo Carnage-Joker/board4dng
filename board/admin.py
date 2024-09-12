@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post, User
+from .models import Post, User, PrivateMessage
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 
@@ -23,3 +23,9 @@ class PostAdmin(admin.ModelAdmin):
     search_fields = ['title', 'content']
 
 
+class PrivateMessageAdmin(admin.ModelAdmin):
+    list_display = ['sender', 'recipient', 'timestamp']
+    search_fields = ['sender', 'recipient']
+    
+    
+admin.site.register(PrivateMessage, PrivateMessageAdmin)
