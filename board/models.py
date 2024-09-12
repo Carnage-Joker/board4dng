@@ -37,6 +37,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)  # Add this line
+    fcm_token = models.CharField(max_length=255, blank=True, null=True)
 
     objects = UserManager()
 

@@ -1,3 +1,6 @@
+from django.views.decorators.csrf import csrf_protect
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import os
@@ -38,14 +41,24 @@ def contains_banned_words(content):
     return None
 
 
-@csrf_exempt
+@csrf_protect
+@login_required
 def subscribe(request):
     if request.method == 'POST':
         token = request.POST.get('token')
-        # Save token to the database (e.g., to the user's profile or a dedicated model)
-        # User.objects.filter(id=request.user.id).update(fcm_token=token)
-        return JsonResponse({'status': 'success'})
-    return JsonResponse({'status': 'error'}, status=400)
+
+        # Validate that token is provided
+        if not token:
+            return JsonResponse({'status': 'error', 'message': 'Token is required'}, status=400)
+
+        # Update or save token to user's profile
+        try:
+            User.objects.filter(id=request.user.id).update(fcm_token=token)
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
 
 
 @login_required
@@ -192,16 +205,22 @@ def message_board(request):
     return render(request, 'board/message_board.html', context)
 
 
+@csrf_protect
 def user_login(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('board:message_board')
+        username = request.POST.get('username').strip().lower()
+        password = request.POST.get('password')
+
+        if username and password:
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('board:message_board')
+            else:
+                messages.error(request, "Invalid username or password.")
         else:
-            messages.error(request, "Invalid username or password.")
+            messages.error(request, "Both username and password are required.")
+
     return render(request, 'board/login.html')
 
 

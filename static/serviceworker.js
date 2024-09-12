@@ -49,3 +49,24 @@ self.addEventListener('notificationclick', function (event) {
         clients.openWindow('/')
     );
 });
+function sendTokenToServer(token) {
+    fetch("{% url 'board:subscribe' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCookie('csrftoken')  // Fetch CSRF token
+        },
+        body: new URLSearchParams({
+            'token': token
+        })
+    }).then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                console.log('Token successfully sent to the server');
+            } else {
+                console.error('Error sending token:', data.message);
+            }
+        }).catch(error => {
+            console.error('Request failed', error);
+        });
+}
