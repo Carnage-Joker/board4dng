@@ -1,8 +1,11 @@
+import json
+import base64
 import os
 from pathlib import Path
+
 import django_heroku
-from decouple import config
 import firebase_admin
+from decouple import config
 from firebase_admin import credentials
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -50,9 +53,20 @@ TEMPLATES = [
     },
 ]
 
+# Decode the Firebase service account key from base64
+firebase_encoded_key = config('FIREBASE_SERVICE_ACCOUNT_KEY')
+firebase_key_bytes = base64.b64decode(firebase_encoded_key)
+firebase_key_dict = json.loads(firebase_key_bytes.decode('utf-8'))
+
+# Initialize Firebase with the decoded key
+cred = credentials.Certificate(firebase_key_dict)
+firebase_admin.initialize_app(cred)
+
 WSGI_APPLICATION = "messageboard.wsgi.application"
 
 # Firebase Admin SDK Initialization
+FIREBASE_SERVICE_ACCOUNT_KEY = os.path.join(
+    BASE_DIR, 'config', 'firebase_service_account.json')
 FIREBASE_SERVICE_ACCOUNT_KEY = os.path.join(
     BASE_DIR, 'config', 'firebase_service_account.json')
 
