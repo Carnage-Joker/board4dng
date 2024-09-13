@@ -54,7 +54,9 @@ WSGI_APPLICATION = "messageboard.wsgi.application"
 
 # Firebase Admin SDK Initialization
 FIREBASE_SERVICE_ACCOUNT_KEY = os.path.join(
-    BASE_DIR, 'config', 'mb4dng-d08900c595c1.json')
+    BASE_DIR, 'config', 'firebase_service_account.json')
+
+# Initialize Firebase Admin SDK
 
 cred = credentials.Certificate(FIREBASE_SERVICE_ACCOUNT_KEY)
 firebase_admin.initialize_app(cred)
