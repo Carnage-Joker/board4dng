@@ -1,3 +1,4 @@
+from .models import User
 from django import forms
 from .models import Post, UserProfile, User
 from .models import PrivateMessage  # Assuming you have a PrivateMessage model
@@ -39,7 +40,9 @@ class PostForm(forms.ModelForm):
 
 
 class UserProfileForm(forms.ModelForm):
+    email_notifications = forms.BooleanField(
+        required=False, label='Receive Email Notifications')
+
     class Meta:
-        model = UserProfile
-        fields = ['email_notifications', 'in_app_notifications', 'selected_theme', 'privacy_mode',
-                  'message_preview', 'auto_logout', 'location_sharing', 'profile_visibility']
+        model = User
+        fields = ['email_notifications', 'fcm_token']

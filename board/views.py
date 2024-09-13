@@ -1,3 +1,4 @@
+import requests
 from django.urls import reverse
 from .forms import UserProfileForm
 from .models import UserProfile
@@ -194,7 +195,17 @@ def profile(request, username):
         'form': form,
     }
     return render(request, 'board/profile.html', context)
+    
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your preferences have been updated.')
+            return redirect('board:profile', username=user.username)
+    else:
+        form = UserProfileForm(instance=user)
 
+    return render(request, 'board/profile.html', {'form': form, 'user_profile': user})
 
 @login_required
 def message_board(request):
@@ -263,6 +274,7 @@ def create_message(request):
 
             recipient = private_message.recipient
 
+            # Check if the recipient wants email notifications
             if recipient.email_notifications:
                 send_mail(
                     subject='New Private Message',
@@ -273,6 +285,7 @@ def create_message(request):
                     fail_silently=False,
                 )
 
+            # Send Push Notification if FCM token exists
             if recipient.fcm_token:
                 send_fcm_notification(
                     recipient.fcm_token, private_message.sender.username)
@@ -292,6 +305,7 @@ def send_fcm_notification(fcm_token, sender_username):
     url = 'https://fcm.googleapis.com/fcm/send'
     headers = {
         'Content-Type': 'application/json',
+        # Replace with your server key
         'Authorization': f'key={settings.FCM_SERVER_KEY}'
     }
     payload = {
@@ -308,7 +322,6 @@ def send_fcm_notification(fcm_token, sender_username):
     return response.json()
 
 
-@login_required
 def flag_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     post.is_flagged = True
