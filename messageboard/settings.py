@@ -58,23 +58,14 @@ firebase_encoded_key = config('FIREBASE_SERVICE_ACCOUNT_KEY')
 firebase_key_bytes = base64.b64decode(firebase_encoded_key)
 firebase_key_dict = json.loads(firebase_key_bytes.decode('utf-8'))
 
-# Initialize Firebase with the decoded key
-cred = credentials.Certificate(firebase_key_dict)
-firebase_admin.initialize_app(cred)
+# Initialize Firebase only if not already initialized
+if not firebase_admin._apps:
+    cred = credentials.Certificate(firebase_key_dict)
+    firebase_admin.initialize_app(cred)
 
 WSGI_APPLICATION = "messageboard.wsgi.application"
 
-# Firebase Admin SDK Initialization
-FIREBASE_SERVICE_ACCOUNT_KEY = os.path.join(
-    BASE_DIR, 'config', 'firebase_service_account.json')
-FIREBASE_SERVICE_ACCOUNT_KEY = os.path.join(
-    BASE_DIR, 'config', 'firebase_service_account.json')
-
-# Initialize Firebase Admin SDK
-
-cred = credentials.Certificate(FIREBASE_SERVICE_ACCOUNT_KEY)
-firebase_admin.initialize_app(cred)
-
+# Firebase configuration settings
 FIREBASE_CONFIG = {
     'apiKey': config('FIREBASE_API_KEY'),
     'authDomain': config('FIREBASE_AUTH_DOMAIN'),
@@ -82,7 +73,7 @@ FIREBASE_CONFIG = {
     'storageBucket': config('FIREBASE_STORAGE_BUCKET'),
     'messagingSenderId': config('FIREBASE_MESSAGING_SENDER_ID'),
     'appId': config('FIREBASE_APP_ID'),
-    'measurementId': config('FIREBASE_MEASUREMENT_ID')
+    'measurementId': config('FIREBASE_MEASUREMENT_ID'),
 }
 
 # PWA Settings
