@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     "board",
     "whitenoise.runserver_nostatic",
     "pwa",
+    "firebase",
 ]
 
 MIDDLEWARE = [
