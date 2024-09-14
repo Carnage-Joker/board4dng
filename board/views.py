@@ -195,7 +195,7 @@ def profile(request, username):
         'form': form,
     }
     return render(request, 'board/profile.html', context)
-    
+
     if request.method == 'POST':
         form = UserProfileForm(request.POST, instance=user)
         if form.is_valid():
@@ -206,6 +206,7 @@ def profile(request, username):
         form = UserProfileForm(instance=user)
 
     return render(request, 'board/profile.html', {'form': form, 'user_profile': user})
+
 
 @login_required
 def message_board(request):

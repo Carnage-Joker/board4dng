@@ -138,25 +138,8 @@ footer a:hover {
     animation: shake 1.5s infinite;
 }
 
-.speech-bubble::after {
-    content: '';
-    position: absolute;
-    inset-block-end: -20px;
-    inset-inline-start: 50%;
-    transform: translateX(-50%);
-    border-width: 10px;
-    border-style: solid;
-    border-color: #7f00ff transparent transparent transparent;
-}
-
-/* Shake animation */
-@keyframes shake {
-    0%, 100% {
-        transform: translateX(-50%) translateY(-3px);
-    }
-    50% {
-        transform: translateX(-50%) translateY(3px);
-    }
+.card h3 {
+    color: #7f00ff;
 }
 
 /* Pagination */
