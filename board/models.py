@@ -1,7 +1,8 @@
 
-from django.utils import timezone
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager,
+                                        PermissionsMixin)
 from django.db import models
+from django.utils import timezone
 
 
 def get_default_user():
@@ -36,8 +37,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_moderator = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    is_approved = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)  # Add this line
-    fcm_token = models.CharField(max_length=255, blank=True, null=True)
+    email_notifications = models.BooleanField(default=True)  # Toggle for email notifications
+    fcm_token = models.CharField(max_length=255, blank=True, null=True)  # Token for push notifications
 
     objects = UserManager()
 
@@ -58,7 +61,7 @@ class PrivateMessage(models.Model):
 
     def __str__(self):
         return f'Message from {self.sender} to {self.recipient}'
-    
+
 
 class Post(models.Model):
     title = models.CharField(max_length=100)
@@ -71,3 +74,21 @@ class Post(models.Model):
 
     def __str__(self):
         return self.content[:20]
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    email_notifications = models.BooleanField(default=True)
+    in_app_notifications = models.BooleanField(default=True)
+    selected_theme = models.CharField(
+        max_length=20,
+        choices=[('default', 'Default'), ('neon', 'Neon'), ('dark', 'Dark'),
+                 ('blue', 'Electric Blue'), ('purple', 'Electric Purple')],
+        default='default'
+    )
+    # Other settings (add more if needed)
+    privacy_mode = models.BooleanField(default=False)
+    message_preview = models.BooleanField(default=True)
+    auto_logout = models.BooleanField(default=False)
+    location_sharing = models.BooleanField(default=False)
+    profile_visibility = models.BooleanField(default=True)
