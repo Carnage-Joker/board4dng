@@ -6,6 +6,7 @@ app_name = 'board'
 urlpatterns = [
     path('', views.welcome, name='welcome'),
     path('register/', views.register, name='register'),
+    path('subscribe/', views.subscribe, name='subscribe'),
     path('login/', views.user_login, name='login'),
     path('logout/', views.user_logout, name='logout'),
     path('profile/<str:username>/', views.profile, name='profile'),
@@ -22,4 +23,5 @@ urlpatterns = [
          views.edit_message, name='edit_message'),
     path('delete_message/<int:message_id>/',
          views.delete_message, name='delete_message'),
+    path('profile/settings/', views.profile_settings, name='profile_settings'),
 ]
