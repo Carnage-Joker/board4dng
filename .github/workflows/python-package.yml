@@ -28,18 +28,21 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-          
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         python -m pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        
+        if [ -f requirements.txt ]; then pip install -r requirements.txt;
+    
+    # Set the DJANGO_SETTINGS_MODULE environment variable
+    - name: Set Django settings
+      run: echo "DJANGO_SETTINGS_MODULE=board.settings" >> $GITHUB_ENV
+
     - name: Lint with flake8
       run: |
         flake8 . --count --select=F63,F7,F82 --show-source --statistics
         flake8 . --count --exit-zero --max-complexity=15 --statistics
-        
+
     - name: Test with pytest
       run: |
         pytest
