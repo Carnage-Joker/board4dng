@@ -1,7 +1,6 @@
 from django import forms
-from .models import Post
+from .models import Post, UserProfile, User
 from .models import PrivateMessage  # Assuming you have a PrivateMessage model
-from .models import User  # Ensure this imports your custom user model
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
 
@@ -22,11 +21,11 @@ class CustomUserChangeForm(UserChangeForm):
 class PrivateMessageForm(forms.ModelForm):
     recipient = forms.ModelChoiceField(
         queryset=User.objects.all(), label="Select User")
+    content = forms.CharField(widget=forms.Textarea)
 
     class Meta:
         model = PrivateMessage
         fields = ['recipient', 'content']
-
 
 
 class PostForm(forms.ModelForm):
@@ -38,3 +37,9 @@ class PostForm(forms.ModelForm):
             'content': forms.Textarea(attrs={'class': 'form-control'}),
         }
 
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['email_notifications', 'in_app_notifications', 'selected_theme', 'privacy_mode',
+                  'message_preview', 'auto_logout', 'location_sharing', 'profile_visibility']
