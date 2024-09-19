@@ -1,0 +1,27 @@
+{% extends 'board/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="neon-glow">Profile Settings</h2>
+    
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        
+        <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-primary neon-button">Save Changes</button>
+        </div>
+    </form>
+
+    <!-- Theme Selection -->
+    <h3 class="neon-glow mt-5">Choose Your Theme</h3>
+    <div class="theme-selection">
+        <div class="theme-option" data-theme="default"></div>
+        <div class="theme-option" data-theme="neon"></div>
+        <div class="theme-option" data-theme="dark"></div>
+        <div class="theme-option" data-theme="blue"></div>
+        <div class="theme-option" data-theme="purple"></div>
+    </div>
+
+</div>
+{% endblock %}
