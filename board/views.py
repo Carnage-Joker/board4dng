@@ -1,3 +1,8 @@
+from django.urls import reverse
+from .forms import UserProfileForm
+from .models import UserProfile
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic.edit import UpdateView
 import requests
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.contrib.auth import authenticate, login, logout
@@ -345,16 +350,23 @@ def view_private_messages(request):
     return render(request, 'board/private_messages.html', {'page_obj': page_obj})
 
 
-@login_required
-def profile_settings(request):
-    profile = request.user.userprofile
-    if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=profile)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Your settings have been updated.')
-            return redirect('board:profile', username=request.user.username)
-    else:
-        form = UserProfileForm(instance=profile)
+class ProfileSettingsView(LoginRequiredMixin, UpdateView):
+    model = UserProfile
+    form_class = UserProfileForm
+    template_name = 'board/profile_settings.html'
 
-    return render(request, 'board/profile_settings.html', {'form': form})
+    def get_success_url(self):
+        # Redirect to the profile page after successful form submission
+        return reverse('board:profile', kwargs={'username': self.request.user.username})
+
+    def form_valid(self, form):
+        # Optionally add a success message
+        messages.success(self.request, 'Your settings have been updated.')
+        return super().form_valid(form)
+    
+    def get_object(self, queryset=None):
+        try:
+            return self.request.user.userprofile
+        except UserProfile.DoesNotExist:
+            # Create the user profile if it doesn't exist
+            return UserProfile.objects.create(user=self.request.user)
