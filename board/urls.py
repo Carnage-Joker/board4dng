@@ -1,5 +1,10 @@
+# This code snippet is defining URL patterns for a Django web application. In Django, URL patterns are
+# defined in the `urlpatterns` list within a Django app's `urls.py` file. Each URL pattern is
+# associated with a specific view function that will be called when a user accesses that particular
+# URL.
 from django.urls import path
 from . import views
+from .views import ProfileSettingsView
 
 app_name = 'board'
 
@@ -23,5 +28,4 @@ urlpatterns = [
          views.edit_message, name='edit_message'),
     path('delete_message/<int:message_id>/',
          views.delete_message, name='delete_message'),
-    path('profile/settings/', views.profile_settings, name='profile_settings'),
-]
+    path('profile/<str:username>/settings/', ProfileSettingsView.as_view(), name='profile_settings'),]
