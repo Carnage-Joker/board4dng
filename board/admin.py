@@ -31,8 +31,9 @@ class PrivateMessageAdmin(admin.ModelAdmin):
 admin.site.register(PrivateMessage, PrivateMessageAdmin)
 
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ['user', 'email_notifications', 'fcm_token']
-    search_fields = ['user', 'email_notifications', 'fcm_token']
+    list_display = ['user', 'profile_visobility',
+                    'location_sharing', 'privacy_mode', 'selected_theme']
+    search_fields = ['user', 'profile_visobility', 'location_sharing', 'privacy_mode', 'selected_theme']
     
 
 admin.site.register(UserProfile, UserProfileAdmin)
