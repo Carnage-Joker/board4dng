@@ -30,6 +30,7 @@ class PrivateMessageAdmin(admin.ModelAdmin):
     
 admin.site.register(PrivateMessage, PrivateMessageAdmin)
 
+
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'profile_visobility',
                     'location_sharing', 'privacy_mode', 'selected_theme']
