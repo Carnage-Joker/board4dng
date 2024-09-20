@@ -1,16 +1,16 @@
 from django.contrib import admin
-from .models import Post, User, PrivateMessage
+from .models import Post, User, PrivateMessage, UserProfile
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 
 class CustomUserAdmin(BaseUserAdmin):
     ordering = ('email',)
-    list_display = ('email', 'username', 'is_staff', 'is_active', 'is_approved')
+    list_display = ('email', 'username', 'is_staff', 'is_active', 'is_approved', 'is_trusted_user')
     search_fields = ('email', 'username')
     readonly_fields = ('id', 'date_joined', 'last_login')
     fieldsets = (
         (None, {'fields': ('email', 'username', 'password')}),
-        ('Permissions', {'fields': ('is_staff', 'is_active', 'is_moderator', 'is_approved')}),
+        ('Permissions', {'fields': ('is_staff', 'is_active', 'is_moderator', 'is_approved', 'is_trusted_user')}),
     )
 
 
@@ -29,3 +29,10 @@ class PrivateMessageAdmin(admin.ModelAdmin):
     
     
 admin.site.register(PrivateMessage, PrivateMessageAdmin)
+
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ['user', 'email_notifications', 'fcm_token']
+    search_fields = ['user', 'email_notifications', 'fcm_token']
+    
+
+admin.site.register(UserProfile, UserProfileAdmin)
