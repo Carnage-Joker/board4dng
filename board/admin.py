@@ -32,9 +32,9 @@ admin.site.register(PrivateMessage, PrivateMessageAdmin)
 
 
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ['user', 'profile_visobility',
+    list_display = ['user', 'profile_visibility',
                     'location_sharing', 'privacy_mode', 'selected_theme']
-    search_fields = ['user', 'profile_visobility', 'location_sharing', 'privacy_mode', 'selected_theme']
+    search_fields = ['user', 'profile_visibility', 'location_sharing', 'privacy_mode', 'selected_theme']
     
 
 admin.site.register(UserProfile, UserProfileAdmin)
