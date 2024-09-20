@@ -41,11 +41,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(default=timezone.now)  # Add this line
     email_notifications = models.BooleanField(default=True)  # Toggle for email notifications
     fcm_token = models.CharField(max_length=255, blank=True, null=True)  # Token for push notifications
+    is_trusted_user = models.BooleanField(default=False, )  # Trusted user flag
 
     objects = UserManager()
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['username', 'email']
 
     def __str__(self):
         return self.username

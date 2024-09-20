@@ -5,12 +5,12 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 class CustomUserAdmin(BaseUserAdmin):
     ordering = ('email',)
-    list_display = ('email', 'username', 'is_staff', 'is_active')
+    list_display = ('email', 'username', 'is_staff', 'is_active', 'is_approved')
     search_fields = ('email', 'username')
     readonly_fields = ('id', 'date_joined', 'last_login')
     fieldsets = (
         (None, {'fields': ('email', 'username', 'password')}),
-        ('Permissions', {'fields': ('is_staff', 'is_active', 'is_moderator')}),
+        ('Permissions', {'fields': ('is_staff', 'is_active', 'is_moderator', 'is_approved')}),
     )
 
 
