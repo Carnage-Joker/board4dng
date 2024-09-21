@@ -6,25 +6,28 @@
     <div class="col-md-8">
         <form id="privateMessageForm" method="POST" action="{% url 'board:create_message' %}">
             {% csrf_token %}
-            <!-- form content here -->
-            {{ form.as_p }}
             
-            <div class="form-group">
-                <label for="id_recipient">Recipient</label>
+            <!-- Recipient Field -->
+            <div class="form-group mb-3">
+                <label for="id_recipient" class="form-label">Recipient</label>
                 {{ form.recipient.errors }}
-                {{ form.recipient }}
+                {{ form.recipient|add_class:"form-control" }}
             </div>
-            <div class="form-group">
-                <label for="id_content">Message</label>
+
+            <!-- Content Field -->
+            <div class="form-group mb-3">
+                <label for="id_content" class="form-label">Message</label>
                 {{ form.content.errors }}
-                {{ form.content }}
+                {{ form.content|add_class:"form-control" }}
             </div>
             
+            <!-- Submit Button -->
             <button type="submit" class="btn btn-primary">Send Message</button>
         </form>
     </div>
 </div>
 
+<!-- Displaying Messages -->
 {% if messages %}
 <div class="row justify-content-center mt-3">
     <div class="col-md-8">

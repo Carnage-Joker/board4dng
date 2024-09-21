@@ -21,15 +21,17 @@ INSTALLED_APPS = [
     "board",
     "whitenoise.runserver_nostatic",
     "pwa",
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    # Place whitenoise middleware correctly
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -51,16 +53,22 @@ TEMPLATES = [
     },
 ]
 
-
-FIREBASE_PRIVATE_KEY = os.getenv('FIREBASE_PRIVATE_KEY')
+FIREBASE_PRIVATE_KEY = config('FIREBASE_PRIVATE_KEY', default='')
 
 if FIREBASE_PRIVATE_KEY:
-    # Load Firebase credentials using the private key
-    cred = credentials.Certificate(json.loads(FIREBASE_PRIVATE_KEY))
+    # Decode Firebase private key (base64 or direct JSON)
+    try:
+        cred_data = base64.b64decode(FIREBASE_PRIVATE_KEY).decode('utf-8')
+        cred = credentials.Certificate(json.loads(cred_data))
+    except:
+        # In case the key is already in JSON format (not base64-encoded)
+        cred = credentials.Certificate(json.loads(FIREBASE_PRIVATE_KEY))
+
     firebase_admin.initialize_app(cred)
 
 # FCM Server Key (also stored in the environment)
-FCM_SERVER_KEY = os.getenv('FCM_SERVER_KEY')
+FCM_SERVER_KEY = config('FCM_SERVER_KEY', default='')
+
 WSGI_APPLICATION = "messageboard.wsgi.application"
 
 # Firebase configuration settings
@@ -85,10 +93,7 @@ PWA_APP_ORIENTATION = 'portrait'
 PWA_APP_START_URL = '/'
 PWA_APP_STATUS_BAR_COLOR = 'default'
 PWA_APP_ICONS = [
-    {
-        'src': '/static/images/icons/icon-72x72.png',
-        'sizes': '72x72'
-    },
+    {'src': '/static/images/icons/icon-72x72.png', 'sizes': '72x72'},
     # Add other icon sizes here...
 ]
 PWA_APP_ICONS_APPLE = [
@@ -98,7 +103,6 @@ PWA_APP_SPLASH_SCREEN = [
         'src': '/static/images/splash_screens/4_iPhone_SE_iPod_touch_5th_generation.png',
         'media': '(device-width: 320px) and (device-height: 568px)'
     },
-    # Add more splash screens as necessary...
 ]
 PWA_APP_DIR = 'ltr'
 PWA_APP_LANG = 'en-US'
@@ -109,7 +113,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 # Load secret key from environment variables
 SECRET_KEY = config('SECRET_KEY')
-DEBUG = True  # config('DEBUG', default=False, cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = ['board4dng.herokuapp.com', 'localhost', '127.0.0.1']
 
 # Database configuration
@@ -149,3 +153,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Django-Heroku settings
 django_heroku.settings(locals())
+
+# Add security settings if DEBUG is False
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True

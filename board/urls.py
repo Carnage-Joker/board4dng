@@ -5,6 +5,7 @@
 from django.urls import path
 from . import views
 from .views import ProfileSettingsView
+from django.contrib.auth import views as auth_views
 
 app_name = 'board'
 
@@ -28,4 +29,24 @@ urlpatterns = [
          views.edit_message, name='edit_message'),
     path('delete_message/<int:message_id>/',
          views.delete_message, name='delete_message'),
-    path('profile/<str:username>/settings/', ProfileSettingsView.as_view(), name='profile_settings'),]
+    path('profile/<str:username>/settings/', ProfileSettingsView.as_view(), name='profile_settings'),
+    path('password_reset/',
+         auth_views.PasswordResetView.as_view(
+             template_name='board/password_reset.html'),
+         name='password_reset'),
+
+    path('password_reset_done/',
+         auth_views.PasswordResetDoneView.as_view(
+             template_name='board/password_reset_done.html'),
+         name='password_reset_done'),
+
+    path('reset/<uidb64>/<token>/',
+         auth_views.PasswordResetConfirmView.as_view(
+             template_name='board/password_reset_confirm.html'),
+         name='password_reset_confirm'),
+
+    path('reset/done/',
+         auth_views.PasswordResetCompleteView.as_view(
+             template_name='board/password_reset_complete.html'),
+         name='password_reset_complete'),
+    ]

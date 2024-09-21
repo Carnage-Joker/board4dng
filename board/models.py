@@ -1,5 +1,4 @@
-from django.contrib.auth.models import (
-    AbstractBaseUser, BaseUserManager, PermissionsMixin)
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.utils import timezone
 
@@ -43,11 +42,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_approved = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
-    # User preference for email notifications
     email_notifications = models.BooleanField(default=True)
-    # Token for push notifications
     fcm_token = models.CharField(max_length=255, blank=True, null=True)
-    # Trusted user flag for moderation privileges
     is_trusted_user = models.BooleanField(default=False)
 
     objects = UserManager()
@@ -82,15 +78,17 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_flagged = models.BooleanField(default=False)
     is_moderated = models.BooleanField(default=False)
-    # Helps bypass moderation if trusted
-    is_trusted_user = models.BooleanField(default=False)
+    is_trusted_user = models.BooleanField(
+        default=False)  # Bypass moderation if trusted
 
     def __str__(self):
-        # Return first 20 characters of content for admin display
+        # Return first 20 characters for admin display
         return self.content[:20]
 
 
 class UserProfile(models.Model):
+    """Extended user profile model."""
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     email_notifications = models.BooleanField(default=True)
     in_app_notifications = models.BooleanField(default=True)

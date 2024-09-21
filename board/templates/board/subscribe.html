@@ -5,34 +5,41 @@
     <h1 class="mb-4">Subscribe to Our Notifications!</h1>
     <p class="mb-4">Get instant updates on new posts and messages. Choose your notification preferences below:</p>
 
-    <!-- Notification Toggles -->
-    <div class="form-check form-switch mb-3">
-        <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
-        <label class="form-check-label neon-text" for="emailNotifications">Enable Email Notifications</label>
-    </div>
-    <div class="form-check form-switch mb-3">
-        <input class="form-check-input" type="checkbox" id="pushNotifications" checked>
-        <label class="form-check-label neon-text" for="pushNotifications">Enable Push Notifications</label>
-    </div>
+    <form id="notificationForm">
+        <!-- Notification Toggles -->
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+            <label class="form-check-label neon-text" for="emailNotifications">Enable Email Notifications</label>
+        </div>
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="pushNotifications" checked>
+            <label class="form-check-label neon-text" for="pushNotifications">Enable Push Notifications</label>
+        </div>
 
-    <!-- Subscription Button -->
-    <button id="subscribeBtn" class="btn btn-primary mt-4">
-        <i class="bi bi-bell-fill icon"></i> Subscribe Now
-    </button>
+        <!-- Subscription Button -->
+        <button type="button" id="subscribeBtn" class="btn btn-primary mt-4">
+            <i class="bi bi-bell-fill icon"></i> Subscribe Now
+        </button>
+    </form>
 </div>
 
 <!-- Speech Bubble for Success Message -->
 <div id="successMessage" class="speech-bubble">🎉 You're subscribed!</div>
-
 {% endblock %}
 
 {% block extra_js %}
 <script>
     document.getElementById('subscribeBtn').addEventListener('click', function() {
+        // Collect user preferences
+        const emailNotifications = document.getElementById('emailNotifications').checked;
+        const pushNotifications = document.getElementById('pushNotifications').checked;
+
         // Show success message
         showSuccessMessage();
 
         // Implement the actual subscription logic here
+        // Example: Send data via AJAX
+        subscribeToNotifications(emailNotifications, pushNotifications);
     });
 
     function showSuccessMessage() {
@@ -42,6 +49,30 @@
         setTimeout(() => {
             successMessage.classList.remove('show');
         }, 5000); // Message disappears after 5 seconds
+    }
+
+    function subscribeToNotifications(emailEnabled, pushEnabled) {
+        // Example AJAX request to handle subscription
+        fetch('/subscribe/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'  // Ensure CSRF token is passed
+            },
+            body: JSON.stringify({
+                email_notifications: emailEnabled,
+                push_notifications: pushEnabled
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                console.log('Successfully subscribed!');
+            } else {
+                console.error('Subscription failed:', data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
     }
 </script>
 {% endblock %}

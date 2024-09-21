@@ -1,0 +1,25 @@
+{% extends 'board/base.html' %}
+
+{% block title %}Approve Post{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center mb-4">Approve Post</h2>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h3>{{ post.title }}</h3>
+            <p>{{ post.content }}</p>
+            <small class="text-muted">Posted by {{ post.author.username }} on {{ post.created_at|date:"F j, Y, g:i a" }}</small>
+        </div>
+    </div>
+
+    <p>Are you sure you want to approve this post?</p>
+    
+    <form method="post" action="{% url 'board:approve_post' post.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">Approve Post</button>
+        <a href="{% url 'board:moderate_posts' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

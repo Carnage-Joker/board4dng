@@ -1,5 +1,6 @@
 {
   "search.useGlobalIgnoreFiles": true,
   "search.useParentIgnoreFiles": true,
-  "Codegeex.SidebarUI.LanguagePreference": "English"
+  "Codegeex.SidebarUI.LanguagePreference": "English",
+  "wolf.disableHotModeWarning": true
 }

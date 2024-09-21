@@ -20,21 +20,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
 
     <!-- Firebase SDK for Messaging -->
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-messaging.js"></script>
-
-    <!-- Service Worker Registration -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register("{% static 'service-worker.js' %}")
-            .then(function(registration) {
-                console.log('Service Worker registered with scope:', registration.scope);
-            })
-            .catch(function(error) {
-                console.log('Service Worker registration failed:', error);
-            });
-        }
-    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-messaging.js" defer></script>
 
     {% block extra_head %}{% endblock %}
 </head>
@@ -129,7 +116,19 @@
         });
     </script>
 
-    {% block extra_js %}{% endblock %}
+    {% block extra_js %}
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register("{% static 'service-worker.js' %}")
+            .then(function(registration) {
+                console.log('Service Worker registered with scope:', registration.scope);
+            })
+            .catch(function(error) {
+                console.log('Service Worker registration failed:', error);
+            });
+        }
+    </script>
+    {% endblock %}
 </body>
 
 </html>

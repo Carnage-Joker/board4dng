@@ -1,27 +1,61 @@
 {% extends 'board/base.html' %}
 
+{% block title %}Private Messages{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-    <h2 class="neon-glow">Profile Settings</h2>
-    
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
+<h1 class="text-center mb-4">Private Messages</h1>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+
+        {% if private_messages %}
+            <!-- Loop through private messages -->
+            {% for message in private_messages %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">From: {{ message.sender.username }}</h5>
+                    
+                    <!-- Truncate message content if it's too long -->
+                    <p class="card-text">
+                        {% if message.content|length > 150 %}
+                            {{ message.content|slice:":150" }}...
+                            <a href="{% url 'board:view_message' message.id %}">Read More</a>
+                        {% else %}
+                            {{ message.content }}
+                        {% endif %}
+                    </p>
+
+                    <small class="text-muted">Received on {{ message.timestamp|date:"F j, Y, g:i a" }}</small>
+                    
+                    <div class="mt-3">
+                        <a href="{% url 'board:reply_message' message.sender.id %}" class="btn btn-primary btn-sm">Reply</a>
+                        <a href="{% url 'board:delete_message' message.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this message?');">Delete</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <!-- Pagination -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                    {% endif %}
+                    <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
         
-        <div class="d-flex justify-content-between mt-4">
-            <button type="submit" class="btn btn-primary neon-button">Save Changes</button>
-        </div>
-    </form>
+        {% else %}
+            <p class="text-center">You have no private messages.</p>
+        {% endif %}
 
-    <!-- Theme Selection -->
-    <h3 class="neon-glow mt-5">Choose Your Theme</h3>
-    <div class="theme-selection">
-        <div class="theme-option" data-theme="default"></div>
-        <div class="theme-option" data-theme="neon"></div>
-        <div class="theme-option" data-theme="dark"></div>
-        <div class="theme-option" data-theme="blue"></div>
-        <div class="theme-option" data-theme="purple"></div>
     </div>
-
 </div>
 {% endblock %}
