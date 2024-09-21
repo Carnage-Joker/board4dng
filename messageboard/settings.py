@@ -1,7 +1,6 @@
 import json
 import base64
 import os
-from pathlib import Path
 
 import django_heroku
 import firebase_admin
@@ -52,16 +51,16 @@ TEMPLATES = [
     },
 ]
 
-# Decode the Firebase service account key from base64
-firebase_encoded_key = config('FIREBASE_SERVICE_ACCOUNT_KEY')
-firebase_key_bytes = base64.b64decode(firebase_encoded_key)
-firebase_key_dict = json.loads(firebase_key_bytes.decode('utf-8'))
 
-# Initialize Firebase only if not already initialized
-if not firebase_admin._apps:
-    cred = credentials.Certificate(firebase_key_dict)
+FIREBASE_PRIVATE_KEY = os.getenv('FIREBASE_PRIVATE_KEY')
+
+if FIREBASE_PRIVATE_KEY:
+    # Load Firebase credentials using the private key
+    cred = credentials.Certificate(json.loads(FIREBASE_PRIVATE_KEY))
     firebase_admin.initialize_app(cred)
 
+# FCM Server Key (also stored in the environment)
+FCM_SERVER_KEY = os.getenv('FCM_SERVER_KEY')
 WSGI_APPLICATION = "messageboard.wsgi.application"
 
 # Firebase configuration settings

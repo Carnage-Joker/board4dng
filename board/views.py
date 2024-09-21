@@ -306,8 +306,7 @@ def send_fcm_notification(fcm_token, sender_username):
     url = 'https://fcm.googleapis.com/fcm/send'
     headers = {
         'Content-Type': 'application/json',
-        # Replace with your server key
-        'Authorization': f'key={settings.FCM_SERVER_KEY}'
+        'Authorization': f'key={settings.FCM_SERVER_KEY}'  # FCM Server Key
     }
     payload = {
         'to': fcm_token,
@@ -319,8 +318,14 @@ def send_fcm_notification(fcm_token, sender_username):
             'message': 'You have a new private message.'
         }
     }
+
     response = requests.post(url, headers=headers, json=payload)
-    return response.json()
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        # Log the error or take other actions if the notification fails
+        return {'error': response.content}
 
 
 def flag_post(request, post_id):
