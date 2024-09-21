@@ -1,3 +1,4 @@
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth import authenticate, login
@@ -211,10 +212,12 @@ def user_login(request):
             if user is not None:
                 login(request, user)
 
-                # Redirect to 'next' if available, otherwise go to the message board
-                next_page = request.GET.get(
-                    'next') or reverse('board:message_board')
-                return redirect(next_page)
+                next_page = request.GET.get('next')
+
+                if next_page and url_has_allowed_host_and_scheme(next_page, allowed_hosts={request.get_host()}):
+                    return redirect(next_page)
+                else:
+                    return redirect(reverse('board:message_board'))
             else:
                 messages.error(request, "Invalid username or password.")
         else:
@@ -225,7 +228,6 @@ def user_login(request):
         return redirect(reverse('board:message_board'))
 
     return render(request, 'board/login.html')
-
 
 
 def user_logout(request):
