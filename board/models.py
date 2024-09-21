@@ -91,13 +91,9 @@ class Post(models.Model):
 
 
 class UserProfile(models.Model):
-    """Extended profile settings for users."""
-
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    # User preference for email notifications
     email_notifications = models.BooleanField(default=True)
-    in_app_notifications = models.BooleanField(
-        default=True)  # Toggle for in-app notifications
+    in_app_notifications = models.BooleanField(default=True)
     selected_theme = models.CharField(
         max_length=20,
         choices=[
@@ -109,15 +105,11 @@ class UserProfile(models.Model):
         ],
         default='default'
     )
-    privacy_mode = models.BooleanField(default=False)  # Privacy mode toggle
-    # Toggle message preview in notifications
+    privacy_mode = models.BooleanField(default=False)
     message_preview = models.BooleanField(default=True)
-    auto_logout = models.BooleanField(
-        default=False)  # Auto-logout after inactivity
-    location_sharing = models.BooleanField(
-        default=False)  # Toggle for location sharing
-    profile_visibility = models.BooleanField(
-        default=True)  # Toggle profile visibility to others
+    auto_logout = models.BooleanField(default=False)
+    location_sharing = models.BooleanField(default=False)
+    profile_visibility = models.BooleanField(default=True)
 
     def __str__(self):
         return f'Profile of {self.user.username}'
