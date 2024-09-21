@@ -44,7 +44,8 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['email_notifications', 'privacy_mode', 'selected_theme',
-                  'message_preview', 'auto_logout', 'location_sharing', 'profile_visibility']
+                  'message_preview', 'auto_logout', 'location_sharing',
+                  'profile_visibility']
 
 
 
