@@ -113,7 +113,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 # Load secret key from environment variables
 SECRET_KEY = config('SECRET_KEY')
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = True  # config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = ['board4dng.herokuapp.com', 'localhost', '127.0.0.1']
 
 # Database configuration
@@ -146,8 +146,8 @@ DEFAULT_FROM_EMAIL = 'noreplyaccactivate@thepinkbook.com.au'
 MODERATOR_EMAIL = 'moderator@thepinkbook.com.au'
 
 # Authentication settings
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'message_board'
+LOGIN_URL = 'board:login'
+LOGIN_REDIRECT_URL = 'board:message_board'
 AUTH_USER_MODEL = 'board.User'
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
