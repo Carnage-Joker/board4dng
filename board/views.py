@@ -1,3 +1,6 @@
+from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_protect
+from django.contrib.auth import authenticate, login
 import requests
 from django.urls import reverse
 from .forms import UserProfileForm, PostForm, PrivateMessageForm, CustomUserCreationForm
@@ -84,7 +87,7 @@ def create_post(request):
                 post.save()
                 send_to_moderator(post)
                 messages.warning(request, f"Your post contains inappropriate content: '{
-                                 banned_word}'. It has been flagged for moderation.")
+                                  banned_word}'. It has been flagged for moderation.")
                 return redirect('board:message_board')
 
             post.is_moderated = True if request.user.is_staff or request.user.profile.is_trusted_user else False
@@ -200,20 +203,29 @@ def message_board(request):
 @csrf_protect
 def user_login(request):
     if request.method == 'POST':
-        username = request.POST.get('username').strip().lower()
-        password = request.POST.get('password')
+        username = request.POST.get('username', '').strip().lower()
+        password = request.POST.get('password', '').strip()
 
         if username and password:
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('board:message_board')
+
+                # Redirect to 'next' if available, otherwise go to the message board
+                next_page = request.GET.get(
+                    'next') or reverse('board:message_board')
+                return redirect(next_page)
             else:
                 messages.error(request, "Invalid username or password.")
         else:
             messages.error(request, "Both username and password are required.")
 
+    # Redirect authenticated users to the message board
+    if request.user.is_authenticated:
+        return redirect(reverse('board:message_board'))
+
     return render(request, 'board/login.html')
+
 
 
 def user_logout(request):
