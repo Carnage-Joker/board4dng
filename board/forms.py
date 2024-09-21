@@ -1,7 +1,5 @@
-from .models import User
 from django import forms
-from .models import Post, UserProfile, User
-from .models import PrivateMessage  # Assuming you have a PrivateMessage model
+from .models import Post, UserProfile, User, PrivateMessage
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
 
