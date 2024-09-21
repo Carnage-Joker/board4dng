@@ -2,10 +2,11 @@
 # defined in the `urlpatterns` list within a Django app's `urls.py` file. Each URL pattern is
 # associated with a specific view function that will be called when a user accesses that particular
 # URL.
+from django.contrib.auth import views as auth_views
 from django.urls import path
+
 from . import views
 from .views import ProfileSettingsView
-from django.contrib.auth import views as auth_views
 
 app_name = 'board'
 
