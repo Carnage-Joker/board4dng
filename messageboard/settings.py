@@ -131,8 +131,10 @@ DATABASES = {
 # Static files configuration
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# Where your static directory is located
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+# Where collected files will go
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
