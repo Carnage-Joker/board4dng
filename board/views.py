@@ -1,33 +1,47 @@
 import requests
 from django.urls import reverse
-from .forms import UserProfileForm
-from .models import UserProfile
+from .forms import UserProfileForm, PostForm, PrivateMessageForm, CustomUserCreationForm
+from .models import UserProfile, Post, PrivateMessage, User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import UpdateView
-import requests
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 import os
-
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
-
-from .forms import CustomUserCreationForm, PostForm, PrivateMessageForm, UserProfileForm
-from .models import Post, PrivateMessage, User
 from .utils import send_to_moderator
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Decorator to restrict actions to staff users
+
+
+def staff_required(view_func):
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_staff:
+            messages.error(
+                request, "You do not have permission for this action.")
+            return redirect('board:message_board')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 
 def load_banned_words(file_path=None):
     if not file_path:
         file_path = os.path.join(settings.BASE_DIR, 'board', 'bad_words.txt')
 
-    with open(file_path, "r") as file:
-        return [word.strip().lower() for word in file.readlines()]
+    try:
+        with open(file_path, "r") as file:
+            return [word.strip().lower() for word in file.readlines()]
+    except FileNotFoundError:
+        logger.error("Banned words file not found.")
+        return []
 
 
 BANNED_WORDS = load_banned_words()
@@ -44,17 +58,11 @@ def contains_banned_words(content):
 @login_required
 def subscribe(request):
     if request.method != 'POST':
-        return JsonResponse(
-            {'status': 'error', 'message': 'Invalid request method'},
-            status=400
-        )
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
 
     token = request.POST.get('token')
     if not token:
-        return JsonResponse(
-            {'status': 'error', 'message': 'Token missing'},
-            status=400
-        )
+        return JsonResponse({'status': 'error', 'message': 'Token missing'}, status=400)
 
     User.objects.filter(id=request.user.id).update(fcm_token=token)
     return JsonResponse({'status': 'success'})
@@ -75,10 +83,8 @@ def create_post(request):
                 post.is_moderated = False
                 post.save()
                 send_to_moderator(post)
-                messages.warning(
-                    request, f"Your post contains inappropriate content: '{
-                        banned_word}'. It has been flagged for moderation."
-                )
+                messages.warning(request, f"Your post contains inappropriate content: '{
+                                 banned_word}'. It has been flagged for moderation.")
                 return redirect('board:message_board')
 
             post.is_moderated = True if request.user.is_staff or request.user.profile.is_trusted_user else False
@@ -97,16 +103,12 @@ def create_post(request):
             return redirect('board:message_board')
     else:
         form = PostForm()
+
     return render(request, 'board/create_post.html', {'form': form})
 
 
-@login_required
+@staff_required
 def moderate_posts(request):
-    if not request.user.is_staff:
-        messages.error(
-            request, "You do not have permission to moderate posts.")
-        return redirect('board:message_board')
-
     flagged_posts = Post.objects.filter(is_flagged=True, is_moderated=False)
     paginator = Paginator(flagged_posts, 10)
     page_number = request.GET.get('page')
@@ -115,15 +117,9 @@ def moderate_posts(request):
     return render(request, 'board/moderate_posts.html', {'page_obj': page_obj})
 
 
-@login_required
+@staff_required
 def approve_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-
-    if not request.user.is_staff:
-        messages.error(
-            request, "You do not have permission to approve this post.")
-        return redirect('board:moderate_posts')
-
     post.is_moderated = True
     post.is_flagged = False
     post.save()
@@ -131,15 +127,9 @@ def approve_post(request, post_id):
     return redirect('board:moderate_posts')
 
 
-@login_required
+@staff_required
 def reject_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-
-    if not request.user.is_staff:
-        messages.error(
-            request, "You do not have permission to reject this post.")
-        return redirect('board:moderate_posts')
-
     post.delete()
     messages.success(request, "The post has been rejected and deleted.")
     return redirect('board:moderate_posts')
@@ -196,17 +186,6 @@ def profile(request, username):
     }
     return render(request, 'board/profile.html', context)
 
-    if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Your preferences have been updated.')
-            return redirect('board:profile', username=user.username)
-    else:
-        form = UserProfileForm(instance=user)
-
-    return render(request, 'board/profile.html', {'form': form, 'user_profile': user})
-
 
 @login_required
 def message_board(request):
@@ -252,6 +231,7 @@ def edit_post(request, post_id):
             return redirect('board:message_board')
     else:
         form = PostForm(instance=post)
+
     return render(request, 'board/edit_post.html', {'form': form})
 
 
@@ -261,6 +241,7 @@ def delete_post(request, post_id):
     if request.method == 'POST':
         post.delete()
         return redirect('board:message_board')
+
     return render(request, 'board/delete_post.html', {'post': post})
 
 
@@ -275,7 +256,6 @@ def create_message(request):
 
             recipient = private_message.recipient
 
-            # Check if the recipient wants email notifications
             if recipient.email_notifications:
                 send_mail(
                     subject='New Private Message',
@@ -286,7 +266,6 @@ def create_message(request):
                     fail_silently=False,
                 )
 
-            # Send Push Notification if FCM token exists
             if recipient.fcm_token:
                 send_fcm_notification(
                     recipient.fcm_token, private_message.sender.username)
@@ -306,7 +285,7 @@ def send_fcm_notification(fcm_token, sender_username):
     url = 'https://fcm.googleapis.com/fcm/send'
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'key={settings.FCM_SERVER_KEY}'  # FCM Server Key
+        'Authorization': f'key={settings.FCM_SERVER_KEY}'
     }
     payload = {
         'to': fcm_token,
@@ -324,10 +303,11 @@ def send_fcm_notification(fcm_token, sender_username):
     if response.status_code == 200:
         return response.json()
     else:
-        # Log the error or take other actions if the notification fails
+        logger.error(f"FCM notification failed: {response.content}")
         return {'error': response.content}
 
 
+@login_required
 def flag_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     post.is_flagged = True
@@ -340,12 +320,13 @@ def flag_post(request, post_id):
 def edit_message(request, message_id):
     message = get_object_or_404(PrivateMessage, id=message_id)
     if request.method == 'POST':
-        form = PrivateMessageForm(request.POST, instance=message) 
-        if form.is_valid(): 
+        form = PrivateMessageForm(request.POST, instance=message)
+        if form.is_valid():
             form.save()
             return redirect('board:message_board')
     else:
         form = PrivateMessageForm(instance=message)
+
     return render(request, 'board/edit_message.html', {'form': form})
 
 
@@ -355,6 +336,7 @@ def delete_message(request, message_id):
     if request.method == 'POST':
         message.delete()
         return redirect('board:message_board')
+
     return render(request, 'board/delete_message.html', {'message': message})
 
 
@@ -375,17 +357,14 @@ class ProfileSettingsView(LoginRequiredMixin, UpdateView):
     template_name = 'board/profile_settings.html'
 
     def get_success_url(self):
-        # Redirect to the profile page after successful form submission
         return reverse('board:profile', kwargs={'username': self.request.user.username})
 
     def form_valid(self, form):
-        # Optionally add a success message
         messages.success(self.request, 'Your settings have been updated.')
         return super().form_valid(form)
-    
+
     def get_object(self, queryset=None):
         try:
             return self.request.user.userprofile
         except UserProfile.DoesNotExist:
-            # Create the user profile if it doesn't exist
             return UserProfile.objects.create(user=self.request.user)

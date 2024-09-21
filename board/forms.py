@@ -44,5 +44,10 @@ class UserProfileForm(forms.ModelForm):
         required=False, label='Receive Email Notifications')
 
     class Meta:
-        model = User
-        fields = ['email_notifications', 'fcm_token']
+        model = UserProfile
+        fields = ['email_notifications', 'fcm_token', 'privacy_mode', 'selected_theme',
+                  'message_preview', 'auto_logout', 'location_sharing', 'profile_visibility']
+
+
+
+
