@@ -1,5 +1,7 @@
+from .models import FamilyToDoItem, SamsTodoItem
+from .models import Habit
 from django import forms
-from .models import Post, UserProfile, User, PrivateMessage
+from .models import Post, UserProfile, User, PrivateMessage, SamsTodoItem, FamilyTodoItem
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
 
@@ -71,3 +73,34 @@ class UserProfileForm(forms.ModelForm):
             'profile_visibility': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
+
+class HabitForm(forms.ModelForm):
+    class Meta:
+        model = Habit
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'})
+        }
+
+
+# board/forms.py
+
+
+class FamilyTodoForm(forms.ModelForm):
+    class Meta:
+        model = FamilyToDoItem
+        fields = ['task_name', 'due_date']
+        widgets = {
+            'task_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter family task'}),
+            'due_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        }
+
+
+class SamsTodoForm(forms.ModelForm):
+    class Meta:
+        model = SamsTodoItem
+        fields = ['task_name', 'due_date']
+        widgets = {
+            'task_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Sam\'s task'}),
+            'due_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        }

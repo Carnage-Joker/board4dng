@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.utils import timezone
@@ -111,3 +112,37 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f'Profile of {self.user.username}'
+
+
+class Habit(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    start_date = models.DateField(auto_now_add=True)
+    completed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+# board/models.py
+
+
+class FamilyToDoItem(models.Model):
+    task_name = models.CharField(max_length=255)
+    assigned_to = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='family_todos')
+    due_date = models.DateField()
+    completed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.task_name
+
+
+class SamsTodoItem(models.Model):
+    task_name = models.CharField(max_length=255)
+    assigned_to = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='sams_todos')
+    due_date = models.DateField()
+    completed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.task_name

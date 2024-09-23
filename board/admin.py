@@ -1,3 +1,4 @@
+from .models import FamilyToDoItem, SamsTodoItem
 from django.contrib import admin
 from .models import Post, User, PrivateMessage, UserProfile
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -51,3 +52,19 @@ class UserProfileAdmin(admin.ModelAdmin):
                      'location_sharing', 'privacy_mode', 'selected_theme']
     list_filter = ['profile_visibility', 'location_sharing',
                    'privacy_mode', 'selected_theme']
+
+    # board/admin.py
+
+
+@admin.register(FamilyToDoItem)
+class FamilyToDoItemAdmin(admin.ModelAdmin):
+    list_display = ('task_name', 'assigned_to', 'due_date', 'completed')
+    list_filter = ('completed', 'due_date', 'assigned_to')
+    search_fields = ('task_name', 'assigned_to__username')
+
+
+@admin.register(SamsTodoItem)
+class SamsTodoItemAdmin(admin.ModelAdmin):
+    list_display = ('task_name', 'assigned_to', 'due_date', 'completed')
+    list_filter = ('completed', 'due_date', 'assigned_to')
+    search_fields = ('task_name', 'assigned_to__username')

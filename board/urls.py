@@ -6,7 +6,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from . import views
-from .views import ProfileSettingsView
+from .views import ProfileSettingsView, UserLoginView, LogoutView
 
 app_name = 'board'
 
@@ -14,8 +14,22 @@ urlpatterns = [
     path('', views.welcome, name='welcome'),
     path('register/', views.register, name='register'),
     path('subscribe/', views.subscribe, name='subscribe'),
-    path('login/', views.user_login, name='login'),
-    path('logout/', views.user_logout, name='logout'),
+    # Family To-Do URLs
+    path('family_todo/', views.family_todo_list, name='family_todo_list'),
+    path('family_todo/add/', views.add_family_todo, name='add_family_todo'),
+    path('family_todo/complete/<int:todo_id>/',
+         views.complete_family_todo, name='complete_family_todo'),
+
+    # Sam's To-Do URLs
+    path('sams_todo/', views.sams_todo_list, name='sams_todo_list'),
+    path('sams_todo/add/', views.add_sams_todo, name='add_sams_todo'),
+    path('sams_todo/complete/<int:todo_id>/',
+         views.complete_sams_todo, name='complete_sams_todo'),
+
+    # Authentication URLs
+    path('login/', UserLoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
+
     path('profile/<str:username>/', views.profile, name='profile'),
     path('messageboard/', views.message_board, name='message_board'),
     path('edit/<int:post_id>/', views.edit_post, name='edit_post'),
@@ -31,23 +45,12 @@ urlpatterns = [
     path('delete_message/<int:message_id>/',
          views.delete_message, name='delete_message'),
     path('profile/<str:username>/settings/', ProfileSettingsView.as_view(), name='profile_settings'),
-    path('password_reset/',
-         auth_views.PasswordResetView.as_view(
-             template_name='board/password_reset.html'),
+    path('password_reset/', auth_views.PasswordResetView.as_view(),
          name='password_reset'),
-
-    path('password_reset_done/',
-         auth_views.PasswordResetDoneView.as_view(
-             template_name='board/password_reset_done.html'),
+    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(),
          name='password_reset_done'),
-
-    path('reset/<uidb64>/<token>/',
-         auth_views.PasswordResetConfirmView.as_view(
-             template_name='board/password_reset_confirm.html'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(),
          name='password_reset_confirm'),
-
-    path('reset/done/',
-         auth_views.PasswordResetCompleteView.as_view(
-             template_name='board/password_reset_complete.html'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(),
          name='password_reset_complete'),
     ]

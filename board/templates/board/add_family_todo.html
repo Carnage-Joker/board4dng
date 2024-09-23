@@ -1,0 +1,17 @@
+<!-- board/templates/board/add_family_todo.html -->
+
+{% extends 'board/base.html' %}
+{% load static %}
+{% block title %}Add Family To-Do{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Add New Family Task</h2>
+    <form method="POST" class="mt-4">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Add Task</button>
+        <a href="{% url 'board:family_todo_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

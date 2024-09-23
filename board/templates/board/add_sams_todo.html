@@ -1,0 +1,17 @@
+<!-- board/templates/board/add_sams_todo.html -->
+
+{% extends 'board/base.html' %}
+{% load static %}
+{% block title %}Add Sam's To-Do{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4" style="color: #ff66cc;">Add New Task for Sam</h2>
+    <form method="POST" class="mt-4">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-warning">Add Task</button>
+        <a href="{% url 'board:sams_todo_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

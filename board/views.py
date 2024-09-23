@@ -1,25 +1,28 @@
-from django.utils.http import url_has_allowed_host_and_scheme
-from django.shortcuts import render, redirect
-from django.views.decorators.csrf import csrf_protect
-from django.contrib.auth import authenticate, login
-import requests
-from django.urls import reverse
-from .forms import UserProfileForm, PostForm, PrivateMessageForm, CustomUserCreationForm
-from .models import UserProfile, Post, PrivateMessage, User
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic.edit import UpdateView
-from django.views.decorators.csrf import csrf_protect, csrf_exempt
-from django.contrib.auth import authenticate, login, logout
-from django.http import JsonResponse
+from .models import FamilyToDoItem, SamsTodoItem
+from .forms import FamilyTodoForm, SamsTodoForm
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse_lazy
+from django.contrib.auth.views import LoginView
+import logging
 import os
+from django.views.decorators.csrf import csrf_exempt
+import requests
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.views.generic.edit import UpdateView
+from .models import Post, PrivateMessage, UserProfile, Habit, FamilyTodoItem, SamsTodoItem, User
+from .forms import (CustomUserCreationForm, PostForm, PrivateMessageForm,
+                    UserProfileForm, TodoItemForm, SamsTodoItemForm, HabitForm)
 from .utils import send_to_moderator
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -201,33 +204,12 @@ def message_board(request):
     return render(request, 'board/message_board.html', {'page_obj': page_obj})
 
 
-@csrf_protect
-def user_login(request):
-    if request.method == 'POST':
-        username = request.POST.get('username', '').strip().lower()
-        password = request.POST.get('password', '').strip()
+class UserLoginView(LoginView):
+    template_name = 'login.html'
+    redirect_authenticated_user = True
 
-        if username and password:
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-
-                next_page = request.GET.get('next')
-
-                if next_page and url_has_allowed_host_and_scheme(next_page, allowed_hosts={request.get_host()}):
-                    return redirect(next_page)
-                else:
-                    return redirect(reverse('board:message_board'))
-            else:
-                messages.error(request, "Invalid username or password.")
-        else:
-            messages.error(request, "Both username and password are required.")
-
-    # Redirect authenticated users to the message board
-    if request.user.is_authenticated:
-        return redirect(reverse('board:message_board'))
-
-    return render(request, 'board/login.html')
+    def get_success_url(self):
+        return reverse_lazy('board:message_board')
 
 
 def user_logout(request):
@@ -382,3 +364,114 @@ class ProfileSettingsView(LoginRequiredMixin, UpdateView):
             return self.request.user.userprofile
         except UserProfile.DoesNotExist:
             return UserProfile.objects.create(user=self.request.user)
+
+
+@login_required
+def habit_tracker(request):
+    habits = Habit.objects.filter(user=request.user)
+    return render(request, 'habit_tracker.html', {'habits': habits})
+
+
+@login_required
+def add_habit(request):
+    if request.method == 'POST':
+        form = HabitForm(request.POST)
+        if form.is_valid():
+            habit = form.save(commit=False)
+            habit.user = request.user
+            habit.save()
+            return redirect('habit_tracker')
+    else:
+        form = HabitForm()
+    return render(request, 'add_habit.html', {'form': form})
+
+
+@login_required
+def mark_habit_complete(request, habit_id):
+    habit = Habit.objects.get(id=habit_id, user=request.user)
+    habit.completed = True
+    habit.save()
+    return redirect('habit_tracker')
+
+
+# board/views.py
+
+
+# ---------------------
+# Family To-Do Views
+# ---------------------
+# board/views.py
+
+def is_parent(user):
+    return user.is_staff  # or any other condition that defines a parent
+
+
+@login_required
+@user_passes_test(is_parent)
+def sams_todo_list(request):
+    sams_todos = SamsTodoItem.objects.filter(assigned_to=request.user)
+    return render(request, 'board/sams_todo_list.html', {'sams_todos': sams_todos})
+
+
+
+@login_required
+def family_todo_list(request):
+    todos = FamilyToDoItem.objects.filter(assigned_to=request.user)
+    return render(request, 'board/family_todo_list.html', {'todos': todos})
+
+
+@login_required
+def add_family_todo(request):
+    if request.method == 'POST':
+        form = FamilyTodoForm(request.POST)
+        if form.is_valid():
+            family_todo = form.save(commit=False)
+            family_todo.assigned_to = request.user
+            family_todo.save()
+            return redirect('family_todo_list')
+    else:
+        form = FamilyTodoForm()
+    return render(request, 'board/add_family_todo.html', {'form': form})
+
+
+@login_required
+def complete_family_todo(request, todo_id):
+    todo = get_object_or_404(FamilyToDoItem, id=todo_id,
+                             assigned_to=request.user)
+    todo.completed = True
+    todo.save()
+    return redirect('family_todo_list')
+
+# ---------------------
+# Sam's To-Do Views
+# ---------------------
+
+
+@login_required
+def sams_todo_list(request):
+    sams_todos = SamsTodoItem.objects.filter(assigned_to=request.user)
+    return render(request, 'board/sams_todo_list.html', {'sams_todos': sams_todos})
+
+
+@login_required
+def add_sams_todo(request):
+    if request.method == 'POST':
+        form = SamsTodoForm(request.POST)
+        if form.is_valid():
+            sams_todo = form.save(commit=False)
+            sams_todo.assigned_to = request.user
+            sams_todo.save()
+            return redirect('sams_todo_list')
+    else:
+        form = SamsTodoForm()
+    return render(request, 'board/add_sams_todo.html', {'form': form})
+
+
+@login_required
+@user_passes_test(is_parent)
+def complete_sams_todo(request, todo_id):
+    sams_todo = get_object_or_404(
+        SamsTodoItem, id=todo_id, assigned_to=request.user)
+    sams_todo.completed = True
+    sams_todo.save()
+    return redirect('sams_todo_list')

@@ -21,7 +21,22 @@ a {
 a:hover {
     color: #7f00ff;
 }
+/* static/css/styles.css */
 
+/* Sam's To-Do List Styles */
+.sams-todo-heading {
+    color: #ff66cc;
+}
+
+.sams-todo-button {
+    background-color: #ff66cc;
+    border-color: #ff66cc;
+}
+
+.sams-todo-button:hover {
+    background-color: #e655b3;
+    border-color: #e655b3;
+}
 /* Buttons */
 .btn {
     background-color: #ff1493;

@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     "pwa",
     'widget_tweaks',
+    'firebase-admin',
 ]
 
 MIDDLEWARE = [
@@ -56,15 +57,14 @@ TEMPLATES = [
 FIREBASE_PRIVATE_KEY = config('FIREBASE_PRIVATE_KEY', default='')
 
 if FIREBASE_PRIVATE_KEY:
-    # Decode Firebase private key (base64 or direct JSON)
     try:
-        cred_data = base64.b64decode(FIREBASE_PRIVATE_KEY).decode('utf-8')
-        cred = credentials.Certificate(json.loads(cred_data))
-    except:
-        # In case the key is already in JSON format (not base64-encoded)
-        cred = credentials.Certificate(json.loads(FIREBASE_PRIVATE_KEY))
+        cred_data = json.loads(base64.b64decode(FIREBASE_PRIVATE_KEY))
+    except Exception:
+        cred_data = json.loads(FIREBASE_PRIVATE_KEY)
 
+    cred = credentials.Certificate(cred_data)
     firebase_admin.initialize_app(cred)
+
 
 # FCM Server Key (also stored in the environment)
 FCM_SERVER_KEY = config('FCM_SERVER_KEY', default='')
@@ -148,8 +148,8 @@ DEFAULT_FROM_EMAIL = 'noreplyaccactivate@thepinkbook.com.au'
 MODERATOR_EMAIL = 'moderator@thepinkbook.com.au'
 
 # Authentication settings
-LOGIN_URL = 'board:login'
-LOGIN_REDIRECT_URL = 'board:message_board'
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/message_board/'
 AUTH_USER_MODEL = 'board.User'
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

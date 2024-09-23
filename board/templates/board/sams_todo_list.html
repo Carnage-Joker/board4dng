@@ -1,0 +1,35 @@
+<!-- board/templates/board/sams_todo_list.html -->
+
+{% extends 'board/base.html' %}
+{% load static %}
+{% block title %}Sam's To-Do List{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4" style="color: #ff66cc;">Sam's To-Do List</h2>
+    
+    <a href="{% url 'board:add_sams_todo' %}" class="btn btn-warning mb-3">Add New Task for Sam</a>
+    
+    {% if sams_todos %}
+        <ul class="list-group">
+            {% for todo in sams_todos %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ todo.task_name }}</strong><br>
+                        <small>Due: {{ todo.due_date|date:"F j, Y" }}</small>
+                    </div>
+                    <div>
+                        {% if not todo.completed %}
+                            <a href="{% url 'board:complete_sams_todo' todo.id %}" class="btn btn-success btn-sm">Mark as Done</a>
+                        {% else %}
+                            <span class="badge bg-success">Done</span>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No tasks for Sam. <a href="{% url 'board:add_sams_todo' %}">Add a new task</a>.</p>
+    {% endif %}
+</div>
+{% endblock %}

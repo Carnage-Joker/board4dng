@@ -66,6 +66,6 @@
     {% endif %}
     
     <!-- Link to user profile settings -->
-    <a href="{% url 'board:profile_settings' %}" class="btn btn-primary mt-3">Profile Settings</a>
+    <a href="{% url 'board:profile_settings' user_profile.username %}" class="btn btn-primary mt-3">Profile Settings</a>
 </div>
 {% endblock %}

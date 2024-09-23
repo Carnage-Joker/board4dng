@@ -1,0 +1,13 @@
+{% extends 'board/base.html' %}
+{% block title %}Habit Tracker{% endblock %}
+
+{% block content %}
+<h2>Your Habits</h2>
+<ul>
+    {% for habit in habits %}
+        <li>{{ habit.name }} - {% if habit.completed %}Completed{% else %}In Progress{% endif %}</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'board:add_habit' %}">Add New Habit</a>
+{% endblock %}
