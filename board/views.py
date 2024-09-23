@@ -1,6 +1,5 @@
-from .models import FamilyToDoItem, SamsTodoItem
-from .forms import FamilyTodoForm, SamsTodoForm
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views import View
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib.auth.views import LoginView
@@ -11,17 +10,15 @@ import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic.edit import UpdateView
-from .models import Post, PrivateMessage, UserProfile, Habit, FamilyTodoItem, SamsTodoItem, User
+from .models import Post, PrivateMessage, UserProfile, Habit, FamilyToDoItem, SamsTodoItem, User
 from .forms import (CustomUserCreationForm, PostForm, PrivateMessageForm,
-                    UserProfileForm, TodoItemForm, SamsTodoItemForm, HabitForm)
+                    UserProfileForm, SamsTodoForm, HabitForm, FamilyTodoForm)
 from .utils import send_to_moderator
 
 logger = logging.getLogger(__name__)
@@ -75,6 +72,12 @@ def subscribe(request):
     return JsonResponse({'status': 'success'})
 
 
+class LogoutView(LoginRequiredMixin, View):
+    def get(self, request):
+        logout(request)
+        return redirect('board:login')
+
+    
 @login_required
 def create_post(request):
     if request.method == 'POST':
@@ -205,11 +208,11 @@ def message_board(request):
 
 
 class UserLoginView(LoginView):
-    template_name = 'login.html'
-    redirect_authenticated_user = True
-
+    template_name = 'board/login.html'
+    success_url = reverse_lazy('board:message_board')
+    
     def get_success_url(self):
-        return reverse_lazy('board:message_board')
+        return self.success_url
 
 
 def user_logout(request):
@@ -448,12 +451,6 @@ def complete_family_todo(request, todo_id):
 
 
 @login_required
-def sams_todo_list(request):
-    sams_todos = SamsTodoItem.objects.filter(assigned_to=request.user)
-    return render(request, 'board/sams_todo_list.html', {'sams_todos': sams_todos})
-
-
-@login_required
 def add_sams_todo(request):
     if request.method == 'POST':
         form = SamsTodoForm(request.POST)
@@ -473,5 +470,5 @@ def complete_sams_todo(request, todo_id):
     sams_todo = get_object_or_404(
         SamsTodoItem, id=todo_id, assigned_to=request.user)
     sams_todo.completed = True
-    sams_todo.save()
-    return redirect('sams_todo_list')
+    sams_todo.save();
+    return redirect('board:sams_todo_list')

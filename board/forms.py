@@ -1,7 +1,6 @@
-from .models import FamilyToDoItem, SamsTodoItem
 from .models import Habit
 from django import forms
-from .models import Post, UserProfile, User, PrivateMessage, SamsTodoItem, FamilyTodoItem
+from .models import Post, UserProfile, User, PrivateMessage, SamsTodoItem, FamilyToDoItem
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
 

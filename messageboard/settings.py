@@ -22,7 +22,6 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     "pwa",
     'widget_tweaks',
-    'firebase-admin',
 ]
 
 MIDDLEWARE = [
@@ -41,8 +40,9 @@ ROOT_URLCONF = "messageboard.urls"
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],  # If you have custom templates, define the path here
-        'APP_DIRS': True,
+        # Define custom template directories
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,  # Ensure app-level templates are enabled
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -152,6 +152,8 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/message_board/'
 AUTH_USER_MODEL = 'board.User'
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+# Redirect users to login page after logout
+LOGOUT_REDIRECT_URL = '/login/'
 
 # Django-Heroku settings
 django_heroku.settings(locals())
