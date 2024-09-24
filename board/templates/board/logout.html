@@ -1,0 +1,26 @@
+  # extend from board/base.html a log out confirmation template following th example of board/templates/board/delete_message.html
+
+    # create a new file called logout.html in the board/templates/board directory and add the following code:
+    <!-- board/templates/board/logout.html -->
+    {% extends 'board/base.html' %}
+
+    {% block title %}Log Out{% endblock %}
+
+    {% block content %}
+    <div class="container mt-4">
+        <h2 class="text-center text-danger">Log Out</h2>
+        <p class="text-center">Are you sure you want to log out?</p>
+        <div class="text-center">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Log Out</button>
+                <a href="{% url 'board:message_board' %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+    
+    {% endblock %}
+
+    # This template extends the base.html template and displays a confirmation message asking the user if they are sure they want to log out. The user can either click the Log Out button to log out or click the Cancel button to return to the message board.
+    
+

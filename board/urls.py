@@ -6,7 +6,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from . import views
-from .views import ProfileSettingsView, UserLoginView, LogoutView
+from .views import ProfileSettingsView, UserLoginView, LogoutView, PrivateMessage
 
 app_name = 'board'
 
@@ -19,6 +19,11 @@ urlpatterns = [
     path('family_todo/add/', views.add_family_todo, name='add_family_todo'),
     path('family_todo/complete/<int:todo_id>/',
          views.complete_family_todo, name='complete_family_todo'),
+    #  Habit URLs
+    path('habit/', views.habit_tracker, name='habit_tracker'),
+    path('habit/add/', views.add_habit, name='add_habit'),
+    path('habit/complete/<int:habit_id>/',
+          views.mark_habit_complete, name='complete_habit'),
 
     # Sam's To-Do URLs
     path('sams_todo/', views.sams_todo_list, name='sams_todo_list'),
@@ -43,6 +48,7 @@ urlpatterns = [
          views.edit_message, name='edit_message'),
     path('delete_message/<int:message_id>/',
          views.delete_message, name='delete_message'),
+    path('private_messages/', views.PrivateMessage, name='private_messages'),
     path('profile/<str:username>/settings/', ProfileSettingsView.as_view(), name='profile_settings'),
     path('password_reset/', auth_views.PasswordResetView.as_view(),
          name='password_reset'),

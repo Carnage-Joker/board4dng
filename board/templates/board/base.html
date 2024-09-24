@@ -50,7 +50,16 @@
                 <a class="nav-link" href="{% url 'board:create_post' %}"><i class="bi bi-pencil-square"></i> New Post</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'board:logout' %}"><i class="bi bi-box-arrow-right"></i> Logout</a>
+                <a class="nav-link" href="{% url 'board:private_messages' %}"><i class="bi bi-envelope"></i> Messages</a>
+              </li>
+                <li class="nav-item">
+                <a class="nav-link" href="{% url 'board:family_todo_list' %}"><i class="bi bi-list"></i> Family To-Do</a>
+                </li>
+                <li class="nav-item">
+                <a class="nav-link" href="{% url 'board:habit_tracker' %}"><i class="bi bi-list"></i> Habit Tracker</a>
+                </li>
+            <li class="nav-item"  
+                <a class="nav-link" href="{% url 'board:logout' %}"><i class="bi bi-box-arrow-in-right"></i> Logout</a>
               </li>
             {% else %}
               <li class="nav-item">
@@ -58,26 +67,18 @@
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'board:register' %}"><i class="bi bi-person-plus"></i> Register</a>
-                <li class="nav-item">
+                </li>
 
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'board:family_todo_list' %}">
-                <i class="bi bi-list-task"></i> Family To-Do
-            </a>
-        </li>
+            {% endif %}
         {% if user.is_staff %}
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'board:sams_todo_list' %}">
                     <i class="bi bi-person-check"></i> Sam's To-Do
                 </a>
             </li>
-        {% endif %}
+            {% endif %}       
     </ul>
 
-                </li>
-              
-            {% endif %}
-          </ul>
         </div>
       </div>
     </nav>

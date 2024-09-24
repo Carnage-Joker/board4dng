@@ -372,7 +372,7 @@ class ProfileSettingsView(LoginRequiredMixin, UpdateView):
 @login_required
 def habit_tracker(request):
     habits = Habit.objects.filter(user=request.user)
-    return render(request, 'habit_tracker.html', {'habits': habits})
+    return render(request, 'board/habit_tracker.html', {'habits': habits})
 
 
 @login_required
@@ -383,10 +383,10 @@ def add_habit(request):
             habit = form.save(commit=False)
             habit.user = request.user
             habit.save()
-            return redirect('habit_tracker')
+            return redirect('board:habit_tracker')
     else:
         form = HabitForm()
-    return render(request, 'add_habit.html', {'form': form})
+    return render(request, 'board/add_habit.html', {'form': form})
 
 
 @login_required
@@ -394,7 +394,7 @@ def mark_habit_complete(request, habit_id):
     habit = Habit.objects.get(id=habit_id, user=request.user)
     habit.completed = True
     habit.save()
-    return redirect('habit_tracker')
+    return redirect('board:habit_tracker')
 
 
 # board/views.py
@@ -431,7 +431,7 @@ def add_family_todo(request):
             family_todo = form.save(commit=False)
             family_todo.assigned_to = request.user
             family_todo.save()
-            return redirect('family_todo_list')
+            return redirect('board:family_todo_list')
     else:
         form = FamilyTodoForm()
     return render(request, 'board/add_family_todo.html', {'form': form})
@@ -443,7 +443,7 @@ def complete_family_todo(request, todo_id):
                              assigned_to=request.user)
     todo.completed = True
     todo.save()
-    return redirect('family_todo_list')
+    return redirect('board:family_todo_list')
 
 # ---------------------
 # Sam's To-Do Views
@@ -458,7 +458,7 @@ def add_sams_todo(request):
             sams_todo = form.save(commit=False)
             sams_todo.assigned_to = request.user
             sams_todo.save()
-            return redirect('sams_todo_list')
+            return redirect('board:sams_todo_list')
     else:
         form = SamsTodoForm()
     return render(request, 'board/add_sams_todo.html', {'form': form})
