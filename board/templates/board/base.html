@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 {% load static %}
 <html lang="en">
-<head>
+  <head>
     <title>
-    {% block title %}
+      {% block title %}
         Our Message Board
-    {% endblock %}
+      {% endblock %}
     </title>
 
     <!-- Manifest & Theme Color -->
@@ -27,69 +27,69 @@
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-messaging.js" defer></script>
 
     {% block extra_head %}
-    {% endblock %}
-</head>
 
-<body class="bg-steel">
+    {% endblock %}
+  </head>
+
+  <body class="bg-steel">
     <!-- board/templates/board/base.html -->
 
     <!-- Add within the Navbar or a sidebar -->
 
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark shadow-lg">
-        <div class="container-fluid">
+      <div class="container-fluid">
         <a class="navbar-brand neon-glow" href="{% url 'board:welcome' %}">Message Board</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             {% if user.is_authenticated %}
-                <li class="nav-item">
+              <li class="nav-item">
                 <a class="nav-link" href="{% url 'board:profile' user.username %}"><i class="bi bi-person-circle"></i> Profile</a>
-                </li>
-                <li class="nav-item">
+              </li>
+              <li class="nav-item">
                 <a class="nav-link" href="{% url 'board:create_post' %}"><i class="bi bi-pencil-square"></i> New Post</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'board:private_messages' %}"><i class="bi bi-envelope"></i> Messages</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'board:family_todo_list' %}"><i class="bi bi-list"></i> Family To-Do</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'board:habit_tracker' %}"><i class="bi bi-list"></i> Habit Tracker</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'board:logout' %}"><i class="bi bi-box-arrow-in-right"></i> Logout</a>
-                </li>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'board:private_messages' %}"><i class="bi bi-envelope"></i> Messages</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'board:family_todo_list' %}"><i class="bi bi-list"></i> Family To-Do</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'board:habit_tracker' %}"><i class="bi bi-list"></i> Habit Tracker</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'board:logout' %}"><i class="bi bi-box-arrow-in-right"></i> Logout</a>
+              </li>
             {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'board:login' %}"><i class="bi bi-box-arrow-in-right"></i> Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'board:register' %}"><i class="bi bi-person-plus"></i> Register</a>
-                </li>
-                {% endif %}
-                {% if user.is_staff %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'board:sams_todo_list' %}">
-                    <i class="bi bi-person-check"></i> Sam's To-Do
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'board:login' %}"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'board:register' %}"><i class="bi bi-person-plus"></i> Register</a>
+              </li>
+            {% endif %}
+            {% if user.is_staff %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'board:sams_todo_list' %}"><i class="bi bi-person-check"></i> Sam's To-Do</a>
+              </li>
+            {% endif %}
+          </ul>
         </div>
-    </div>
+      </div>
     </nav>
 
     <!-- Main Content Area -->
     <div class="container mt-5">
-        {% block content %}
-        {% endblock %}
+      {% block content %}
+
+      {% endblock %}
     </div>
 
     <!-- Footer -->
     <footer class="text-center mt-5">
-        <p>&copy; 2024 Message Board | Built with ❤️ and Python</p>
+      <p>&copy; 2024 Message Board | Built with ❤️ and Python</p>
     </footer>
 
     <!-- Bootstrap Bundle with Popper -->
@@ -97,49 +97,54 @@
 
     <!-- Firebase and Push Notifications -->
     <script>
-        const firebaseConfig = {
-            apiKey: "{{ firebase_config.apiKey }}",
-            authDomain: "{{ firebase_config.authDomain }}",
-            projectId: "{{ firebase_config.projectId }}",
-            storageBucket: "{{ firebase_config.storageBucket }}",
-            messagingSenderId: "{{ firebase_config.messagingSenderId }}",
-            appId: "{{ firebase_config.appId }}",
-            measurementId: "{{ firebase_config.measurementId }}"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const messaging = firebase.messaging();
-
-        messaging.requestPermission().then(function() {
-            console.log('Notification permission granted.');
-            return messaging.getToken();
-        }).then(function(token) {
-            console.log('FCM Token:', token);
-            fetch('{% url "board:subscribe" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify({ token: token })
-            });
-        }).catch(function(err) {
-            console.log('Unable to get permission to notify.', err);
-        });
+      const firebaseConfig = {
+        apiKey: '{{ firebase_config.apiKey }}',
+        authDomain: '{{ firebase_config.authDomain }}',
+        projectId: '{{ firebase_config.projectId }}',
+        storageBucket: '{{ firebase_config.storageBucket }}',
+        messagingSenderId: '{{ firebase_config.messagingSenderId }}',
+        appId: '{{ firebase_config.appId }}',
+        measurementId: '{{ firebase_config.measurementId }}'
+      }
+      
+      firebase.initializeApp(firebaseConfig)
+      const messaging = firebase.messaging()
+      
+      messaging
+        .requestPermission()
+        .then(function () {
+          console.log('Notification permission granted.')
+          return messaging.getToken()
+        })
+        .then(function (token) {
+          console.log('FCM Token:', token)
+          fetch('{% url "board:subscribe" %}', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ token: token })
+          })
+        })
+        .catch(function (err) {
+          console.log('Unable to get permission to notify.', err)
+        })
     </script>
 
     {% block extra_js %}
-        <script>
+      <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register("{% static 'service-worker.js' %}")
-            .then(function(registration) {
-                console.log('Service Worker registered with scope:', registration.scope);
+          navigator.serviceWorker
+            .register("{% static 'service-worker.js' %}")
+            .then(function (registration) {
+              console.log('Service Worker registered with scope:', registration.scope)
             })
-            .catch(function(error) {
-                console.log('Service Worker registration failed:', error);
-            });
+            .catch(function (error) {
+              console.log('Service Worker registration failed:', error)
+            })
         }
-    </script>
+      </script>
     {% endblock %}
-    </body>
+  </body>
 </html>

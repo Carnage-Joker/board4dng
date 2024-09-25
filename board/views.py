@@ -19,30 +19,26 @@ from django.views.generic.edit import UpdateView
 from .models import Post, PrivateMessage, UserProfile, Habit, FamilyToDoItem, SamsTodoItem, User
 from .forms import (CustomUserCreationForm, PostForm, PrivateMessageForm,
                     UserProfileForm, SamsTodoForm, HabitForm, FamilyTodoForm)
-from .utils import send_to_moderator
+from .utils import send_to_moderator, send_creation_notification
 
 logger = logging.getLogger(__name__)
 
-# Decorator to restrict actions to staff users
 
-
+# Custom decorator to restrict actions to staff users
 def staff_required(view_func):
-    def _wrapped_view(request, *args, **kwargs):
-        if not request.user.is_staff:
-            messages.error(
-                request, "You do not have permission for this action.")
-            return redirect('board:message_board')
-        return view_func(request, *args, **kwargs)
-    return _wrapped_view
+    return user_passes_test(lambda u: u.is_staff, login_url='board:message_board')(view_func)
 
 
+# Load banned words from a file
 def load_banned_words(file_path=None):
     if not file_path:
         file_path = os.path.join(settings.BASE_DIR, 'board', 'bad_words.txt')
 
     try:
         with open(file_path, "r") as file:
-            return [word.strip().lower() for word in file.readlines()]
+            words = [word.strip().lower() for word in file.readlines()]
+            logger.info("Banned words loaded successfully.")
+            return words
     except FileNotFoundError:
         logger.error("Banned words file not found.")
         return []
@@ -52,10 +48,8 @@ BANNED_WORDS = load_banned_words()
 
 
 def contains_banned_words(content):
-    for word in BANNED_WORDS:
-        if word in content.lower():
-            return word
-    return None
+    content_lower = content.lower()
+    return next((word for word in BANNED_WORDS if word in content_lower), None)
 
 
 @csrf_exempt
@@ -68,7 +62,11 @@ def subscribe(request):
     if not token:
         return JsonResponse({'status': 'error', 'message': 'Token missing'}, status=400)
 
-    User.objects.filter(id=request.user.id).update(fcm_token=token)
+    try:
+        request.user.update(fcm_token=token)
+    except IntegrityError:
+        return JsonResponse({'status': 'error', 'message': 'Database update failed'}, status=500)
+
     return JsonResponse({'status': 'success'})
 
 
@@ -77,39 +75,26 @@ class LogoutView(LoginRequiredMixin, View):
         logout(request)
         return redirect('board:login')
 
-    
+
 @login_required
 def create_post(request):
     if request.method == 'POST':
         form = PostForm(request.POST)
         if form.is_valid():
-            content = form.cleaned_data['content']
             post = form.save(commit=False)
             post.author = request.user
 
-            banned_word = contains_banned_words(content)
+            banned_word = contains_banned_words(post.content)
             if banned_word:
-                post.is_flagged = True
-                post.is_moderated = False
-                post.save()
-                send_to_moderator(post)
+                post.flag_for_moderation(banned_word)
                 messages.warning(request, f"Your post contains inappropriate content: '{
-                                  banned_word}'. It has been flagged for moderation.")
+                                 banned_word}'. It has been flagged for moderation.")
                 return redirect('board:message_board')
 
-            post.is_moderated = bool(
-                request.user.is_staff or request.user.profile.is_trusted_user
-            )
+            post.is_moderated = request.user.is_staff or request.user.profile.is_trusted_user
             post.save()
 
-            send_mail(
-                subject='New Post Created',
-                message=f"A new post has been created by {
-                    post.author.username}.",
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[settings.MODERATOR_EMAIL],
-                fail_silently=False,
-            )
+            post.send_creation_notification()
             messages.success(
                 request, "Your post has been successfully published!")
             return redirect('board:message_board')
@@ -142,13 +127,17 @@ def approve_post(request, post_id):
 @staff_required
 def reject_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    post.delete()
+    post.reject()  # Refactored into the Post model
     messages.success(request, "The post has been rejected and deleted.")
     return redirect('board:moderate_posts')
 
 
 def welcome(request):
-    return render(request, 'board/welcome.html', {'firebase_config': settings.FIREBASE_CONFIG})
+    context = {
+        'firebase_config': settings.FIREBASE_CONFIG,
+        'is_authenticated': request.user.is_authenticated
+    }
+    return render(request, 'board/welcome.html', context)
 
 
 def register(request):
@@ -212,14 +201,9 @@ def message_board(request):
 class UserLoginView(LoginView):
     template_name = 'board/login.html'
     success_url = reverse_lazy('board:message_board')
-    
+
     def get_success_url(self):
         return self.success_url
-
-
-def user_logout(request):
-    logout(request)
-    return redirect('board:welcome')
 
 
 @login_required
@@ -299,10 +283,13 @@ def send_fcm_notification(fcm_token, sender_username):
         }
     }
 
-    response = requests.post(url, headers=headers, json=payload)
-
-    if response.status_code == 200:
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
         return response.json()
+    except requests.RequestException as e:
+        logger.error(f"FCM Notification failed: {e}")
+        return None
 
 
 @login_required
@@ -338,13 +325,6 @@ def delete_message(request, message_id):
     return render(request, 'board/delete_message.html', {'message': message})
 
 
-@login_required
-class PrivateMessageView(LoginRequiredMixin, View):
-    def get(self, request):
-        messages = PrivateMessage.objects.filter(recipient=request.user)
-        return render(request, 'board/private_messages.html', {'messages': messages})
-    
-   
 class ProfileSettingsView(LoginRequiredMixin, UpdateView):
     model = UserProfile
     form_class = UserProfileForm
@@ -392,18 +372,9 @@ def mark_habit_complete(request, habit_id):
     return redirect('board:habit_tracker')
 
 
-# board/views.py
-
+# Check if user is a parent
 def is_parent(user):
     return user.is_staff  # or any other condition that defines a parent
-
-
-@login_required
-@user_passes_test(is_parent)
-def sams_todo_list(request):
-    sams_todos = SamsTodoItem.objects.filter(assigned_to=request.user)
-    return render(request, 'board/sams_todo_list.html', {'sams_todos': sams_todos})
-
 
 
 @login_required
@@ -434,22 +405,35 @@ def complete_family_todo(request, todo_id):
     todo.save()
     return redirect('board:family_todo_list')
 
-# ---------------------
-# Sam's To-Do Views
-# ---------------------
+
+@login_required
+@user_passes_test(is_parent)
+def sams_todo_list(request):
+    # Fetch the user Mick (you can also fetch by ID if needed)
+    mick = get_object_or_404(User, username="Mick")
+
+    # Filter Sam's tasks for Mick
+    sams_todos = SamsTodoItem.objects.filter(assigned_to=mick)
+
+    return render(request, 'board/sams_todo_list.html', {'sams_todos': sams_todos})
 
 
 @login_required
+@user_passes_test(is_parent)
 def add_sams_todo(request):
+    # Ensure tasks are always assigned to Mick
+    mick = get_object_or_404(User, username="Mick")
+
     if request.method == 'POST':
         form = SamsTodoForm(request.POST)
         if form.is_valid():
             sams_todo = form.save(commit=False)
-            sams_todo.assigned_to = request.user
+            sams_todo.assigned_to = mick  # Assigning to Mick explicitly
             sams_todo.save()
             return redirect('board:sams_todo_list')
     else:
         form = SamsTodoForm()
+
     return render(request, 'board/add_sams_todo.html', {'form': form})
 
 
@@ -462,3 +446,10 @@ def complete_sams_todo(request, todo_id):
     sams_todo.completed = True
     sams_todo.save()
     return redirect('board:sams_todo_list')
+
+
+class PrivateMessage(LoginRequiredMixin, View):
+    def get(self, request):
+        private_messages = PrivateMessage.objects.filter(
+            recipient=request.user)
+        return render(request, 'board/private_messages.html', {'private_messages': private_messages})

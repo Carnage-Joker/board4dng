@@ -24,3 +24,12 @@ def send_to_moderator(post):
     except Exception as e:
         logger.error(f"Failed to send email to moderator: {e}")
 
+
+def send_creation_notification(self):
+    send_mail(
+        subject='New Post Created',
+        message=f"A new post has been created by {self.author.username}.",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[settings.MODERATOR_EMAIL],
+        fail_silently=False,
+    )

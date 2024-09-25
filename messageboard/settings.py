@@ -89,7 +89,6 @@ PWA_APP_DISPLAY = 'standalone'
 PWA_APP_SCOPE = '/'
 PWA_APP_ORIENTATION = 'portrait'
 PWA_APP_START_URL = '/message_board/'
-PWA_APP_START_URL = '/'
 PWA_APP_STATUS_BAR_COLOR = 'default'
 PWA_APP_ICONS = [
     {'src': '/static/images/icons/icon-72x72.png', 'sizes': '72x72'},
