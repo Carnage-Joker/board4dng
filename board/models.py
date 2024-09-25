@@ -81,7 +81,7 @@ class Post(models.Model):
     is_moderated = models.BooleanField(default=False)
     is_trusted_user = models.BooleanField(
         default=False)  # Bypass moderation if trusted
-    
+
     def flag_for_moderation(self, banned_word):
         self.is_flagged = True
         self.is_moderated = False
@@ -90,7 +90,7 @@ class Post(models.Model):
 
     def reject(self):
         self.delete()
-    
+
     def __str__(self):
         # Return first 20 characters for admin display
         return self.content[:20]

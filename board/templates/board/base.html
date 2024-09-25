@@ -79,6 +79,16 @@
         </div>
       </div>
     </nav>
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="speech-bubble {{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
 
     <!-- Main Content Area -->
     <div class="container mt-5">

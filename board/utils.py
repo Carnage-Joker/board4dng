@@ -15,7 +15,7 @@ def send_to_moderator(post):
     try:
         send_mail(
             subject="Post Review Needed",
-            message=f"A post with ID {post.id} has been flagged for review. Title: {post.title}", #  add link to moderator dashboard
+            message=f"A post with ID {post.id} has been flagged for review. Title: {post.title}",
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[settings.MODERATOR_EMAIL],
             fail_silently=False,

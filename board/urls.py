@@ -6,7 +6,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from . import views
-from .views import ProfileSettingsView, UserLoginView, LogoutView, PrivateMessage
+from .views import ProfileSettingsView, UserLoginView, LogoutView, PrivateMessageView
 
 app_name = 'board'
 
@@ -48,7 +48,7 @@ urlpatterns = [
          views.edit_message, name='edit_message'),
     path('delete_message/<int:message_id>/',
          views.delete_message, name='delete_message'),
-    path('private_messages/', PrivateMessage.as_view, name='private_messages'),
+    path('private_messages/', PrivateMessageView.as_view, name='private_messages'),
     path('profile/<str:username>/settings/', ProfileSettingsView.as_view(), name='profile_settings'),
     path('password_reset/', auth_views.PasswordResetView.as_view(),
          name='password_reset'),

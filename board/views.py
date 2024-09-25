@@ -201,8 +201,10 @@ def message_board(request):
 class UserLoginView(LoginView):
     template_name = 'board/login.html'
     success_url = reverse_lazy('board:message_board')
+    fail_silently = False
 
     def get_success_url(self):
+        messages.success(self.request, 'You have successfully logged in.')
         return self.success_url
 
 
@@ -213,10 +215,11 @@ def edit_post(request, post_id):
         form = PostForm(request.POST, instance=post)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Your post has been updated.')
             return redirect('board:message_board')
     else:
         form = PostForm(instance=post)
-
+        messages.fail(request, 'There was an error updating the post. Please try again.')
     return render(request, 'board/edit_post.html', {'form': form})
 
 
@@ -308,6 +311,7 @@ def edit_message(request, message_id):
         form = PrivateMessageForm(request.POST, instance=message)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Your message has been updated.')
             return redirect('board:message_board')
     else:
         form = PrivateMessageForm(instance=message)
@@ -358,9 +362,11 @@ def add_habit(request):
             habit = form.save(commit=False)
             habit.user = request.user
             habit.save()
+            messages.success(request, 'Habit added successfully!')
             return redirect('board:habit_tracker')
     else:
         form = HabitForm()
+        messages.fail(request, 'There was an error adding the habit. Check you filled everything in correctly.')
     return render(request, 'board/add_habit.html', {'form': form})
 
 
@@ -369,6 +375,7 @@ def mark_habit_complete(request, habit_id):
     habit = Habit.objects.get(id=habit_id, user=request.user)
     habit.completed = True
     habit.save()
+    messages.success(request, 'Good job! Keep up the good work!')
     return redirect('board:habit_tracker')
 
 
@@ -448,8 +455,14 @@ def complete_sams_todo(request, todo_id):
     return redirect('board:sams_todo_list')
 
 
-class PrivateMessage(LoginRequiredMixin, View):
+class PrivateMessageView(LoginRequiredMixin, View):
     def get(self, request):
+        # Fetch messages for the currently logged-in user
         private_messages = PrivateMessage.objects.filter(
             recipient=request.user)
+
+        if sender := request.GET.get('sender'):
+            private_messages = private_messages.filter(
+                sender__username=sender)
         return render(request, 'board/private_messages.html', {'private_messages': private_messages})
+
