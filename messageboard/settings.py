@@ -54,9 +54,7 @@ TEMPLATES = [
     },
 ]
 
-FIREBASE_PRIVATE_KEY = config('FIREBASE_PRIVATE_KEY', default='')
-
-if FIREBASE_PRIVATE_KEY:
+if FIREBASE_PRIVATE_KEY := config('FIREBASE_PRIVATE_KEY', default=''):
     try:
         cred_data = json.loads(base64.b64decode(FIREBASE_PRIVATE_KEY))
     except Exception:
@@ -90,6 +88,7 @@ PWA_APP_BACKGROUND_COLOR = '#ffffff'
 PWA_APP_DISPLAY = 'standalone'
 PWA_APP_SCOPE = '/'
 PWA_APP_ORIENTATION = 'portrait'
+PWA_APP_START_URL = '/message_board/'
 PWA_APP_START_URL = '/'
 PWA_APP_STATUS_BAR_COLOR = 'default'
 PWA_APP_ICONS = [
@@ -97,7 +96,8 @@ PWA_APP_ICONS = [
     # Add other icon sizes here...
 ]
 PWA_APP_ICONS_APPLE = [
-    {'src': '/static/images/icons/icon-180x180.png', 'sizes': '180x180'}]
+    {'src': '/static/images/icons/icon-180x180.png', 'sizes': '180x180'}
+]
 PWA_APP_SPLASH_SCREEN = [
     {
         'src': '/static/images/splash_screens/4_iPhone_SE_iPod_touch_5th_generation.png',
@@ -110,7 +110,6 @@ PWA_APP_LANG = 'en-US'
 # Sessions
 SESSION_COOKIE_AGE = 1200  # 20 minutes
 SESSION_SAVE_EVERY_REQUEST = True
-
 # Load secret key from environment variables
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = True  # config('DEBUG', default=False, cast=bool)

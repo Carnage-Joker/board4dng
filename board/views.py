@@ -97,7 +97,9 @@ def create_post(request):
                                   banned_word}'. It has been flagged for moderation.")
                 return redirect('board:message_board')
 
-            post.is_moderated = True if request.user.is_staff or request.user.profile.is_trusted_user else False
+            post.is_moderated = bool(
+                request.user.is_staff or request.user.profile.is_trusted_user
+            )
             post.save()
 
             send_mail(
@@ -301,9 +303,6 @@ def send_fcm_notification(fcm_token, sender_username):
 
     if response.status_code == 200:
         return response.json()
-    else:
-        logger.error(f"FCM notification failed: {response.content}")
-        return {'error': response.content}
 
 
 @login_required
@@ -340,16 +339,12 @@ def delete_message(request, message_id):
 
 
 @login_required
-def view_private_messages(request):
-    messages_list = PrivateMessage.objects.filter(
-        receiver=request.user).order_by('-created_at')
-    paginator = Paginator(messages_list, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    return render(request, 'board/private_messages.html', {'page_obj': page_obj})
-
-
+class PrivateMessageView(LoginRequiredMixin, View):
+    def get(self, request):
+        messages = PrivateMessage.objects.filter(recipient=request.user)
+        return render(request, 'board/private_messages.html', {'messages': messages})
+    
+   
 class ProfileSettingsView(LoginRequiredMixin, UpdateView):
     model = UserProfile
     form_class = UserProfileForm
@@ -397,12 +392,6 @@ def mark_habit_complete(request, habit_id):
     return redirect('board:habit_tracker')
 
 
-# board/views.py
-
-
-# ---------------------
-# Family To-Do Views
-# ---------------------
 # board/views.py
 
 def is_parent(user):
@@ -460,7 +449,9 @@ def add_sams_todo(request):
             sams_todo.save()
             return redirect('board:sams_todo_list')
     else:
-        form = SamsTodoForm()
+python
+def add_sams_todo(request):
+    form = SamsTodoForm()
     return render(request, 'board/add_sams_todo.html', {'form': form})
 
 
@@ -470,5 +461,5 @@ def complete_sams_todo(request, todo_id):
     sams_todo = get_object_or_404(
         SamsTodoItem, id=todo_id, assigned_to=request.user)
     sams_todo.completed = True
-    sams_todo.save();
+    sams_todo.save()
     return redirect('board:sams_todo_list')
