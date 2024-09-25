@@ -449,10 +449,9 @@ def add_sams_todo(request):
             sams_todo.save()
             return redirect('board:sams_todo_list')
     else:
-python
-def add_sams_todo(request):
-    form = SamsTodoForm()
+        form = SamsTodoForm()
     return render(request, 'board/add_sams_todo.html', {'form': form})
+
 
 
 @login_required
