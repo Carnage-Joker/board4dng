@@ -1,34 +1,28 @@
- # generate an add habit template that extends from the base.html template
 {% extends 'board/base.html' %}
-# load the static files
-{% load static %}
-# set the title of the page
+
 {% block title %}Add Habit{% endblock %}
-# set the content of the page
+
 {% block content %}
-# create a container for the form
+
 <div class="container">
-    # set the title of the form
+    
     <h2 class="mb-4">Add New Habit</h2>
-    # create a form that will be submitted using the POST method
+    
     <form method="POST" class="mt-4">
-        # add a CSRF token to the form
+        
         {% csrf_token %}
-        # display the form fields as paragraphs
+        
         {{ form.as_p }}
-        # create a button to submit the form
+        
         <button type="submit" class="btn btn-primary">Add Habit</button>
-        # create a button to cancel the form submission
+        
         <a href="{% url 'board:habit_tracker' %}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 {% endblock %}
-# add a base href tag to the template
- <base href="" class="html">
-# add a meta tag to the template
+<base href="" class="html">
     <meta charset="UTF-8">
-# add a meta tag to the template
+
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-# add a meta tag to the template
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-# add a title tag to the template

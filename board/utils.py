@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 import logging
 
 from django.conf import settings
@@ -26,10 +27,15 @@ def send_to_moderator(post):
 
 
 def send_creation_notification(self):
+    # Get all users' email addresses
+    all_user_emails = User.objects.values_list(
+        'email', flat=True).exclude(email='')
+
+    # Send the email to all users
     send_mail(
         subject='New Post Created',
         message=f"A new post has been created by {self.author.username}.",
         from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[settings.MODERATOR_EMAIL],
+        recipient_list=all_user_emails,
         fail_silently=False,
     )

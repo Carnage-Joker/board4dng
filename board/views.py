@@ -87,20 +87,22 @@ def create_post(request):
             banned_word = contains_banned_words(post.content)
             if banned_word:
                 post.flag_for_moderation(banned_word)
-                messages.warning(request, f"Your post contains inappropriate content: '{
-                                 banned_word}'. It has been flagged for moderation.")
+                messages.warning(request, f"Your post contains inappropriate content: '{banned_word}'. It has been flagged for moderation.")
                 return redirect('board:message_board')
 
             post.is_moderated = request.user.is_staff or request.user.profile.is_trusted_user
             post.save()
 
             post.send_creation_notification()
-            messages.success(
-                request, "Your post has been successfully published!")
+            messages.success(request, "Your post has been successfully published!")
             return redirect('board:message_board')
-    else:
-        form = PostForm()
+            else:
+            form = PostForm()
 
+            return render(request, 'board/create_post.html', {'form': form})
+        else:
+        return render(request, 'board/create_post.html', {'form': PostForm()})
+    else:
     return render(request, 'board/create_post.html', {'form': form})
 
 
@@ -219,7 +221,7 @@ def edit_post(request, post_id):
             return redirect('board:message_board')
     else:
         form = PostForm(instance=post)
-        messages.fail(request, 'There was an error updating the post. Please try again.')
+        messages.error(request, 'There was an error updating the post. Please try again.')
     return render(request, 'board/edit_post.html', {'form': form})
 
 
@@ -366,7 +368,7 @@ def add_habit(request):
             return redirect('board:habit_tracker')
     else:
         form = HabitForm()
-        messages.fail(request, 'There was an error adding the habit. Check you filled everything in correctly.')
+        messages.error(request, 'There was an error adding the habit. Check you filled everything in correctly.')
     return render(request, 'board/add_habit.html', {'form': form})
 
 
@@ -442,7 +444,6 @@ def add_sams_todo(request):
         form = SamsTodoForm()
 
     return render(request, 'board/add_sams_todo.html', {'form': form})
-
 
 
 @login_required
