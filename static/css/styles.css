@@ -9,6 +9,7 @@ body {
     background-image: url("{% static 'images/electric_circuit_bg.jpg' %}");
     background-attachment: fixed;
     background-size: cover;
+    background-position: center;
 }
 
 /* Links */
@@ -19,24 +20,9 @@ a {
 }
 
 a:hover {
-    color: #7f00ff;
-}
-/* static/css/styles.css */
-
-/* Sam's To-Do List Styles */
-.sams-todo-heading {
-    color: #ff66cc;
+    color: #1E90FF;
 }
 
-.sams-todo-button {
-    background-color: #ff66cc;
-    border-color: #ff66cc;
-}
-
-.sams-todo-button:hover {
-    background-color: #e655b3;
-    border-color: #e655b3;
-}
 /* Buttons */
 .btn {
     background-color: #ff1493;
@@ -60,7 +46,7 @@ a:hover {
 .navbar {
     background-color: #1f1f1f;
     padding: 10px 20px;
-    border-block-end: 2px solid #7f00ff;
+    border-bottom: 2px solid #7f00ff;
 }
 
 .navbar .navbar-brand {
@@ -73,7 +59,7 @@ a:hover {
 .navbar .nav-link {
     color: #e6e6e6;
     font-size: 16px;
-    padding-inline-start: 20px;
+    padding-left: 20px;
 }
 
 .navbar .nav-link:hover {
@@ -87,30 +73,38 @@ a:hover {
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 6px 20px rgba(127, 0, 255, 0.3);
-    margin-block-start: 20px;
+    margin-top: 20px;
 }
 
 /* Headers */
-h1, h2, h3 {
+h1,
+h2,
+h3 {
     color: #1E90FF;
     font-weight: bold;
     text-shadow: 0 0 10px #1E90FF, 0 0 20px #ff1493;
 }
 
 /* Form elements */
-input[type="text"], input[type="password"], textarea, select {
+input[type="text"],
+input[type="password"],
+textarea,
+select {
     background-color: #252525;
     border: 2px solid #ff1493;
     border-radius: 10px;
     padding: 10px;
     font-size: 16px;
-    inline-size: 100%;
-    margin-block-end: 20px;
+    width: 100%;
+    margin-bottom: 20px;
     color: #e6e6e6;
     transition: border-color 0.3s ease;
 }
 
-input[type="text"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
+input[type="text"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
     border-color: #1E90FF;
     box-shadow: 0 0 10px #1E90FF;
     outline: none;
@@ -122,11 +116,10 @@ footer {
     color: #e6e6e6;
     padding: 20px;
     text-align: center;
-    margin-block-start: 40px;
+    margin-top: 40px;
     text-shadow: 0 0 8px #ff1493;
 }
 
-/* Footer links */
 footer a {
     color: #ff1493;
 }
@@ -135,23 +128,25 @@ footer a:hover {
     color: #1E90FF;
 }
 
-/* Speech bubble (e.g. for success messages) */
+/* Speech bubble (for messages) */
 .speech-bubble {
     background-color: #7f00ff;
     color: #fff;
     position: fixed;
-    inset-block-start: 20%;
-    inset-inline-start: 50%;
+    top: 20%;
+    left: 50%;
     transform: translateX(-50%);
     border-radius: 20px;
     padding: 20px;
-    max-inline-size: 300px;
+    max-width: 300px;
     font-size: 1.2rem;
     text-align: center;
     display: none;
     box-shadow: 0px 4px 15px rgba(127, 0, 255, 0.5);
     animation: shake 1.5s infinite;
 }
+
+/* Habit Report Card */
 .habit-report-card {
     margin: 20px 0;
 }
@@ -168,6 +163,7 @@ footer a:hover {
     text-align: center;
 }
 
+/* Success and Warning badges */
 .badge-success {
     background-color: #28a745;
     color: white;
@@ -180,9 +176,6 @@ footer a:hover {
     color: white;
     padding: 5px 10px;
     border-radius: 5px;
-}
-.card h3 {
-    color: #7f00ff;
 }
 
 /* Pagination */
@@ -206,7 +199,7 @@ footer a:hover {
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .navbar .nav-link {
-        padding-inline-start: 10px;
+        padding-left: 10px;
     }
 
     .container {
@@ -215,5 +208,29 @@ footer a:hover {
 
     h1 {
         font-size: 24px;
+    }
+
+    .btn {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 18px;
+    }
+
+    .navbar .navbar-brand {
+        font-size: 18px;
+    }
+
+    .btn {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+
+    footer {
+        font-size: 14px;
     }
 }
