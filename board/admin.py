@@ -47,7 +47,7 @@ class PrivateMessageAdmin(admin.ModelAdmin):
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'profile_visibility',
-                    'location_sharing', 'privacy_mode', 'selected_theme']
+                    'location_sharing', 'privacy_mode', 'selected_theme', 'email_notifications', 'is_trusted_user']
     search_fields = ['user__username', 'profile_visibility',
                      'location_sharing', 'privacy_mode', 'selected_theme']
     list_filter = ['profile_visibility', 'location_sharing',

@@ -111,7 +111,7 @@ SESSION_COOKIE_AGE = 1200  # 20 minutes
 SESSION_SAVE_EVERY_REQUEST = True
 # Load secret key from environment variables
 SECRET_KEY = config('SECRET_KEY')
-DEBUG = True  # config('DEBUG', default=False, cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = ['board4dng.herokuapp.com', 'localhost', '127.0.0.1']
 
 # Database configuration
@@ -152,6 +152,10 @@ AUTH_USER_MODEL = 'board.User'
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Redirect users to login page after logout
 LOGOUT_REDIRECT_URL = '/login/'
+ERROR_PAGE = '/404/'
+
+
+
 
 # Django-Heroku settings
 django_heroku.settings(locals())

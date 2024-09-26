@@ -1,7 +1,7 @@
+from .utils import send_to_moderator  # Assuming you have a utility for this
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.utils import timezone
-from .utils import send_to_moderator
 
 
 def get_default_user():
@@ -79,21 +79,27 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_flagged = models.BooleanField(default=False)
     is_moderated = models.BooleanField(default=False)
-    is_trusted_user = models.BooleanField(
-        default=False)  # Bypass moderation if trusted
+
+    # Remove is_trusted_user from Post model (assume this is now on User)
 
     def flag_for_moderation(self, banned_word):
+        """Flags the post for moderation and notifies moderators."""
         self.is_flagged = True
-        self.is_moderated = False
+        self.is_moderated = False  # Needs review by a moderator
         self.save()
-        send_to_moderator(self)
+
+        # Notify moderators with information about the banned word
+        send_to_moderator(
+            self, reason=f"Flagged due to banned word: {banned_word}")
 
     def reject(self):
+        """Deletes the post (could be enhanced to mark as 'rejected')."""
         self.delete()
 
     def __str__(self):
-        # Return first 20 characters for admin display
-        return self.content[:20]
+        # Display first 20 characters for admin panel
+        return f"Post: {self.title} by {self.author.username if self.author else 'Unknown'}"
+
 
 
 class UserProfile(models.Model):
@@ -118,20 +124,43 @@ class UserProfile(models.Model):
     auto_logout = models.BooleanField(default=False)
     location_sharing = models.BooleanField(default=False)
     profile_visibility = models.BooleanField(default=True)
-
+    is_trusted_user = models.BooleanField(default=False)
+    
     def __str__(self):
         return f'Profile of {self.user.username}'
 
 
 class Habit(models.Model):
+    FREQUENCY_CHOICES = [
+        ('hourly', 'Hourly'),
+        ('daily', 'Daily'),
+        ('weekly', 'Weekly'),
+        ('monthly', 'Monthly'),
+        ('yearly', 'Yearly')
+    ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     start_date = models.DateField(auto_now_add=True)
     completed = models.BooleanField(default=False)
+    frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES, default='daily')
+    # Tracks how many times the habit has been completed
+    current_count = models.IntegerField(default=0)  # Tracks progress
+    target_count = models.IntegerField(
+        default=1)   # Goal to complete the habit
+
+    def increment_count(self):
+        """Increments the current count and checks if the habit is completed."""
+        if self.current_count < self.target_count:
+            self.current_count += 1
+            self.save()
+
+        if self.current_count >= self.target_count:
+            self.completed = True
+            self.save()
 
     def __str__(self):
         return self.name
-
 # board/models.py
 
 

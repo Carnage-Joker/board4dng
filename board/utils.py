@@ -1,37 +1,33 @@
 from django.contrib.auth.models import User
 import logging
-
+import requests
 from django.conf import settings
 from django.core.mail import send_mail
 
 logger = logging.getLogger(__name__)
 
 
-def send_to_moderator(post):
-    """
-    Sends a post to a moderator for review.
-    Logs the action and sends an email to the moderator.
-    """
-    logger.info(f"Post {post.id} flagged for review.")
-    try:
-        send_mail(
-            subject="Post Review Needed",
-            message=f"A post with ID {post.id} has been flagged for review. Title: {post.title}",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[settings.MODERATOR_EMAIL],
-            fail_silently=False,
-        )
-        logger.info("Email sent to moderator successfully.")
-    except Exception as e:
-        logger.error(f"Failed to send email to moderator: {e}")
+def send_to_moderator(post, reason=None):
+    """Notify moderators about a flagged post with a specific reason."""
+    moderator_email = settings.MODERATOR_EMAIL
+    message = f"A post has been flagged for moderation. \nReason: {
+        reason}\n\nPost Content:\n{post.content}"
+
+    send_mail(
+        subject="Post Flagged for Moderation",
+        message=message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[moderator_email],
+        fail_silently=False,
+    )
 
 
 def send_creation_notification(self):
-    # Get all users' email addresses
-    all_user_emails = User.objects.values_list(
+    # Get all users' email addresses excluding the post author
+    all_user_emails = User.objects.exclude(id=self.author.id).values_list(
         'email', flat=True).exclude(email='')
 
-    # Send the email to all users
+    # Send the email to all users except the author
     send_mail(
         subject='New Post Created',
         message=f"A new post has been created by {self.author.username}.",
@@ -39,3 +35,29 @@ def send_creation_notification(self):
         recipient_list=all_user_emails,
         fail_silently=False,
     )
+
+
+def send_fcm_notification(fcm_token, sender_username):
+    url = 'https://fcm.googleapis.com/fcm/send'
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'key={settings.FCM_SERVER_KEY}'
+    }
+    payload = {
+        'to': fcm_token,
+        'notification': {
+            'title': 'New Private Message',
+            'body': f'You have a new message from {sender_username}',
+        },
+        'data': {
+            'message': 'You have a new private message.'
+        }
+    }
+
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        logger.error(f"FCM Notification failed: {e}")
+        return None

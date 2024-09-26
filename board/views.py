@@ -1,3 +1,16 @@
+
+from .forms import PrivateMessageForm
+from .models import User, PrivateMessage
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import UserProfile
+from django.contrib.auth.decorators import user_passes_test
+from django.shortcuts import render, redirect
+from .models import PrivateMessage
+from django.shortcuts import render
+from django.shortcuts import get_object_or_404, redirect
+from .models import Habit
+from django.contrib.auth.decorators import login_required
+from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views import View
 from django.shortcuts import render, redirect, get_object_or_404
@@ -84,27 +97,29 @@ def create_post(request):
             post = form.save(commit=False)
             post.author = request.user
 
+            # Check if the user is a trusted user
+            # Assuming UserProfile contains is_trusted_user
+            post.is_moderated = request.user.profile.is_trusted_user
+
+            # Check for banned words and flag for moderation if necessary
             banned_word = contains_banned_words(post.content)
             if banned_word:
                 post.flag_for_moderation(banned_word)
-                messages.warning(request, f"Your post contains inappropriate content: '{banned_word}'. It has been flagged for moderation.")
+                messages.warning(
+                    request, f"Your post contains inappropriate content and has been flagged for moderation.")
                 return redirect('board:message_board')
 
-            post.is_moderated = request.user.is_staff or request.user.profile.is_trusted_user
+            # Save the post and notify users
             post.save()
-
             post.send_creation_notification()
-            messages.success(request, "Your post has been successfully published!")
+            messages.success(
+                request, "Your post has been successfully published!")
             return redirect('board:message_board')
-            else:
-            form = PostForm()
 
-            return render(request, 'board/create_post.html', {'form': form})
-        else:
-        return render(request, 'board/create_post.html', {'form': PostForm()})
     else:
-    return render(request, 'board/create_post.html', {'form': form})
+        form = PostForm()
 
+    return render(request, 'board/create_post.html', {'form': form})
 
 @staff_required
 def moderate_posts(request):
@@ -164,7 +179,7 @@ def profile(request, username):
     user = get_object_or_404(User, username=username)
     posts = Post.objects.filter(author=user)
     private_messages = PrivateMessage.objects.filter(sender=user)
-
+    habits = Habit.objects.filter(user=user)
     flagged_posts = []
     if request.user.is_staff:
         flagged_posts = Post.objects.filter(
@@ -184,6 +199,7 @@ def profile(request, username):
         'is_staff': request.user.is_staff,
         'user_profile': user,
         'posts': posts,
+        'habits': habits,
         'private_messages': private_messages,
         'form': form,
     }
@@ -192,7 +208,7 @@ def profile(request, username):
 
 @login_required
 def message_board(request):
-    posts_list = Post.objects.filter(is_flagged=False).order_by('created_at')
+    posts_list = Post.objects.filter(is_flagged=False).order_by('-created_at')
     paginator = Paginator(posts_list, 5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -271,30 +287,7 @@ def create_message(request):
     return render(request, 'board/create_message.html', {'form': form})
 
 
-def send_fcm_notification(fcm_token, sender_username):
-    url = 'https://fcm.googleapis.com/fcm/send'
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'key={settings.FCM_SERVER_KEY}'
-    }
-    payload = {
-        'to': fcm_token,
-        'notification': {
-            'title': 'New Private Message',
-            'body': f'You have a new message from {sender_username}',
-        },
-        'data': {
-            'message': 'You have a new private message.'
-        }
-    }
 
-    try:
-        response = requests.post(url, headers=headers, json=payload)
-        response.raise_for_status()
-        return response.json()
-    except requests.RequestException as e:
-        logger.error(f"FCM Notification failed: {e}")
-        return None
 
 
 @login_required
@@ -381,6 +374,18 @@ def mark_habit_complete(request, habit_id):
     return redirect('board:habit_tracker')
 
 
+@login_required
+def increment_habit(request, habit_id):
+    habit = get_object_or_404(Habit, id=habit_id, user=request.user)
+
+    # Increment the habit count
+    habit.increment_count()
+    messages.success(request, f"You've completed {habit.name} {
+                     habit.current_count}/{habit.target_count} times!")
+
+    # Redirect back to the user's profile or another page
+    return redirect('board:profile', username=request.user.username)
+
 # Check if user is a parent
 def is_parent(user):
     return user.is_staff  # or any other condition that defines a parent
@@ -458,12 +463,45 @@ def complete_sams_todo(request, todo_id):
 
 class PrivateMessageView(LoginRequiredMixin, View):
     def get(self, request):
-        # Fetch messages for the currently logged-in user
         private_messages = PrivateMessage.objects.filter(
-            recipient=request.user)
-
-        if sender := request.GET.get('sender'):
-            private_messages = private_messages.filter(
-                sender__username=sender)
+            recipient=request.user).select_related('sender')
         return render(request, 'board/private_messages.html', {'private_messages': private_messages})
 
+@login_required
+def view_message(request):
+    private_messages = PrivateMessage.objects.filter(recipient=request.user)
+    return render(request, 'board/private_messages.html', {'private_messages': private_messages})
+
+
+@user_passes_test(lambda u: u.is_superuser)  # Only superusers can approve
+def approve_users(request):
+    unapproved_users = UserProfile.objects.filter(is_approved=False)
+
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        user_profile = UserProfile.objects.get(id=user_id)
+        user_profile.is_approved = True
+        user_profile.save()
+        messages.success(request, f'User {
+                         user_profile.user.username} has been approved.')
+
+    return render(request, 'board/approve_users.html', {'unapproved_users': unapproved_users})
+
+
+@login_required
+def reply_message(request, sender_id):
+    sender = get_object_or_404(User, id=sender_id)
+
+    if request.method == 'POST':
+        form = PrivateMessageForm(request.POST)
+        if form.is_valid():
+            private_message = form.save(commit=False)
+            private_message.sender = request.user
+            private_message.recipient = sender
+            private_message.save()
+            # Redirect back to the private messages page
+            return redirect('board:private_messages')
+    else:
+        form = PrivateMessageForm()
+
+    return render(request, 'board/reply_message.html', {'form': form, 'sender': sender})

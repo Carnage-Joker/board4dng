@@ -76,9 +76,11 @@ class UserProfileForm(forms.ModelForm):
 class HabitForm(forms.ModelForm):
     class Meta:
         model = Habit
-        fields = ['name']
+        fields = ['name', 'frequency', 'target_count']
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'})
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'frequency': forms.Select(attrs={'class': 'form-control'}),
+            'target_count': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
 

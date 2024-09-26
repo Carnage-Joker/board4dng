@@ -8,7 +8,12 @@
 
 <form method="post" class="mt-4">
     {% csrf_token %}
-    {{ form.as_p }}
+    
+    <!-- Title Field -->
+    <div class="form-group mb-3">
+        <label for="id_title" class="form-label">Title</label>
+        {{ form.title|add_class:"form-control" }}
+    </div>
 
     <!-- Post Content Field with Character Counter -->
     <div class="form-group mb-3">
@@ -25,7 +30,7 @@
 {% block extra_js %}
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const postContent = document.getElementById('id_content');  // Use Django-generated ID
+        const postContent = document.getElementById('id_content');
         const charCount = document.getElementById('charCount');
         const maxChars = 500;
 

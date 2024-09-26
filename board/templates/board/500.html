@@ -1,0 +1,10 @@
+{% extends 'board/base.html' %}
+{% block title %}Server Error{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <h1>500</h1>
+    <p>Sorry, something went wrong on our end. Please try again later.</p>
+    <a href="{% url 'board:message_board' %}" class="btn btn-primary">Return to Home</a>
+</div>
+{% endblock %}

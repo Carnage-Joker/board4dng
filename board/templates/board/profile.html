@@ -68,4 +68,46 @@
     <!-- Link to user profile settings -->
     <a href="{% url 'board:profile_settings' user_profile.username %}" class="btn btn-primary mt-3">Profile Settings</a>
 </div>
+<h2>{{ user_profile.username }}'s Habit Progress</h2>
+
+<div class="habit-report-card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Habit</th>
+                <th>Frequency</th>
+                <th>Progress</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for habit in habits %}
+                <tr>
+                    <td>{{ habit.name }}</td>
+                    <td>{{ habit.get_frequency_display }}</td>
+                    <td>{{ habit.current_count }}/{{ habit.target_count }}</td>
+                    <td>
+                        {% if habit.completed %}
+                            <span class="badge badge-success">Completed</span>
+                        {% else %}
+                            <span class="badge badge-warning">In Progress</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form action="{% url 'board:increment_habit' habit.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary">Increment</button>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5">No habits found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
 {% endblock %}

@@ -1,0 +1,13 @@
+<h2>Approve New Users</h2>
+
+<ul>
+    {% for user_profile in unapproved_users %}
+        <li>{{ user_profile.user.username }} 
+            <form method="post" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="user_id" value="{{ user_profile.id }}">
+                <button type="submit" class="btn btn-primary">Approve</button>
+            </form>
+        </li>
+    {% endfor %}
+</ul>
