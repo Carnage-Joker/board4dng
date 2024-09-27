@@ -41,7 +41,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_moderator = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    is_approved = models.BooleanField(default=True)
+    is_approved = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
     email_notifications = models.BooleanField(default=True)
     fcm_token = models.CharField(max_length=255, blank=True, null=True)
@@ -99,7 +99,6 @@ class Post(models.Model):
     def __str__(self):
         # Display first 20 characters for admin panel
         return f"Post: {self.title} by {self.author.username if self.author else 'Unknown'}"
-
 
 
 class UserProfile(models.Model):

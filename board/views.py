@@ -1,4 +1,8 @@
 
+from .forms import PostForm
+from .models import Post
+from django.shortcuts import redirect, render
+from django.db import transaction
 from .forms import PrivateMessageForm
 from .models import User, PrivateMessage
 from django.shortcuts import render, get_object_or_404, redirect
@@ -88,7 +92,6 @@ class LogoutView(LoginRequiredMixin, View):
         logout(request)
         return redirect('board:login')
 
-
 @login_required
 def create_post(request):
     if request.method == 'POST':
@@ -97,21 +100,23 @@ def create_post(request):
             post = form.save(commit=False)
             post.author = request.user
 
-            # Check if the user is a trusted user
-            # Assuming UserProfile contains is_trusted_user
-            post.is_moderated = request.user.profile.is_trusted_user
+            # Check if the user has a profile and is a trusted user
+            if hasattr(request.user, 'userprofile') and request.user.profile.is_trusted_user:
+                post.is_moderated = True
+            else:
+                post.is_moderated = False
 
-            # Check for banned words and flag for moderation if necessary
-            banned_word = contains_banned_words(post.content)
-            if banned_word:
+            if banned_word := contains_banned_words(post.content)
                 post.flag_for_moderation(banned_word)
                 messages.warning(
-                    request, f"Your post contains inappropriate content and has been flagged for moderation.")
+                    request, "Your post contains inappropriate content and has been flagged for moderation.")
                 return redirect('board:message_board')
 
-            # Save the post and notify users
-            post.save()
-            post.send_creation_notification()
+            # Use a transaction to ensure atomicity
+            with transaction.atomic():
+                post.save()
+                post.send_creation_notification()
+
             messages.success(
                 request, "Your post has been successfully published!")
             return redirect('board:message_board')
@@ -178,7 +183,7 @@ def register(request):
 def profile(request, username):
     user = get_object_or_404(User, username=username)
     posts = Post.objects.filter(author=user)
-    private_messages = PrivateMessage.objects.filter(sender=user)
+    private_messages = PrivateMessage.objects.filter(recipient=user).order_by('-timestamp')
     habits = Habit.objects.filter(user=user)
     flagged_posts = []
     if request.user.is_staff:
