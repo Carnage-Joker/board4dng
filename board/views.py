@@ -106,7 +106,7 @@ def create_post(request):
             else:
                 post.is_moderated = False
 
-            if banned_word := contains_banned_words(post.content)
+            if banned_word := contains_banned_words(post.content):
                 post.flag_for_moderation(banned_word)
                 messages.warning(
                     request, "Your post contains inappropriate content and has been flagged for moderation.")
