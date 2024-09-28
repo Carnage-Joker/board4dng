@@ -10,8 +10,7 @@ logger = logging.getLogger(__name__)
 def send_to_moderator(post, reason=None):
     """Notify moderators about a flagged post with a specific reason."""
     moderator_email = settings.MODERATOR_EMAIL
-    message = f"A post has been flagged for moderation. \nReason: {
-        reason}\n\nPost Content:\n{post.content}"
+    message = f"A post has been flagged for moderation. \nReason: {reason}\n\nPost Content:\n{post.content}"
 
     send_mail(
         subject="Post Flagged for Moderation",
@@ -21,20 +20,6 @@ def send_to_moderator(post, reason=None):
         fail_silently=False,
     )
 
-
-def send_creation_notification(self):
-    # Get all users' email addresses excluding the post author
-    all_user_emails = User.objects.exclude(id=self.author.id).values_list(
-        'email', flat=True).exclude(email='')
-
-    # Send the email to all users except the author
-    send_mail(
-        subject='New Post Created',
-        message=f"A new post has been created by {self.author.username}.",
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=all_user_emails,
-        fail_silently=False,
-    )
 
 
 def send_fcm_notification(fcm_token, sender_username):
