@@ -111,7 +111,7 @@ SESSION_COOKIE_AGE = 1200  # 20 minutes
 SESSION_SAVE_EVERY_REQUEST = True
 # Load secret key from environment variables
 SECRET_KEY = config('SECRET_KEY')
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = True  # config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = ['board4dng.herokuapp.com', 'localhost', '127.0.0.1']
 
 # Database configuration
