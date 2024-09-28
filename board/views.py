@@ -1,23 +1,10 @@
 
-from .forms import PostForm
-from .models import Post
-from django.shortcuts import redirect, render
 from django.db import transaction
-from .forms import PrivateMessageForm
-from .models import User, PrivateMessage
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import UserProfile
-from django.contrib.auth.decorators import user_passes_test
-from django.shortcuts import render, redirect
-from .models import PrivateMessage
-from django.shortcuts import render
-from django.shortcuts import get_object_or_404, redirect
-from .models import Habit
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
+
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views import View
-from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib.auth.views import LoginView
 import logging
@@ -46,7 +33,8 @@ def staff_required(view_func):
     return user_passes_test(lambda u: u.is_staff, login_url='board:message_board')(view_func)
 
 
-# Load banned words from a file
+logger = logging.getLogger(__name__)
+
 def load_banned_words(file_path=None):
     if not file_path:
         file_path = os.path.join(settings.BASE_DIR, 'board', 'bad_words.txt')
@@ -60,14 +48,10 @@ def load_banned_words(file_path=None):
         logger.error("Banned words file not found.")
         return []
 
-
 BANNED_WORDS = load_banned_words()
-
-
 def contains_banned_words(content):
     content_lower = content.lower()
     return next((word for word in BANNED_WORDS if word in content_lower), None)
-
 
 @csrf_exempt
 @login_required
@@ -92,6 +76,8 @@ class LogoutView(LoginRequiredMixin, View):
         logout(request)
         return redirect('board:login')
 
+
+
 @login_required
 def create_post(request):
     if request.method == 'POST':
@@ -101,7 +87,7 @@ def create_post(request):
             post.author = request.user
 
             # Check if the user has a profile and is a trusted user
-            if hasattr(request.user, 'userprofile') and request.user.profile.is_trusted_user:
+            if hasattr(request.user, 'userprofile') and request.user.userprofile.is_trusted_user:
                 post.is_moderated = True
             else:
                 post.is_moderated = False
@@ -125,6 +111,7 @@ def create_post(request):
         form = PostForm()
 
     return render(request, 'board/create_post.html', {'form': form})
+
 
 @staff_required
 def moderate_posts(request):
