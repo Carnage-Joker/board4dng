@@ -113,7 +113,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = ['board4dng.herokuapp.com', 'localhost', '127.0.0.1']
-
+TIMEZONE = 'Australia/Sydney'
 # Database configuration
 DATABASES = {
     'default': {
@@ -146,6 +146,11 @@ DEFAULT_FROM_EMAIL = 'noreplyaccactivate@thepinkbook.com.au'
 MODERATOR_EMAIL = 'moderator@thepinkbook.com.au'
 
 # Authentication settings
+AUTHENTICATION_BACKENDS = [
+    'board.authentication.ApprovedUserBackend',  # Add your custom backend
+    'django.contrib.auth.backends.ModelBackend',  # Fallback to default
+]
+
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/message_board/'
 AUTH_USER_MODEL = 'board.User'
@@ -160,9 +165,9 @@ LOGOUT_REDIRECT_URL = '/login/'
 django_heroku.settings(locals())
 
 # Add security settings if DEBUG is False
- #  if not DEBUG:
- #   SECURE_SSL_REDIRECT = True
- #   SECURE_HSTS_SECONDS = 31536000  # 1 year
- #   SECURE_HSTS_INCLUDE_SUBDOMAINS = True
- #   CSRF_COOKIE_SECURE = True
- #   SESSION_COOKIE_SECURE = True
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True

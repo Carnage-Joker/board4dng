@@ -6,118 +6,167 @@
 
 {% block content %}
 <div class="container">
-    <h2 class="mt-4">{{ user_profile.username }}'s Posts</h2>
-    <ul class="list-group mb-4">
-        {% for post in posts %}
-        <li class="list-group-item post">
-            <h3>{{ post.title }}</h3>
-            <p>{{ post.content }}</p>
-            <small class="text-muted">Posted on {{ post.created_at|date:"F j, Y, g:i a" }}</small>
-            <div class="mt-2">
-                {% if request.user == post.author %}
-                <a href="{% url 'board:edit_post' post.id %}" class="btn btn-primary btn-sm">Edit</a>
-                <a href="{% url 'board:delete_post' post.id %}" class="btn btn-danger btn-sm">Delete</a>
-                {% endif %}
-            </div>
-        </li>
-        {% empty %}
-        <li class="list-group-item">No posts available.</li>
-        {% endfor %}
-    </ul>
+    <!-- User Profile Header -->
+    <div class="row mt-4 mb-4">
+        <div class="col-md-8">
+            <h2>{{ user_profile.username }}'s Profile</h2>
+        </div>
+        <div class="col-md-4 text-md-right text-center">
+            <a href="{% url 'board:profile_settings' user_profile.username %}" class="btn btn-primary">Profile Settings</a>
+        </div>
+    </div>
 
-    <h2>{{ user_profile.username }}'s Private Messages</h2>
-    <p><a href="{% url 'board:create_message' %}">Send a Private Message</a></p>
-    <ul class="list-group mb-4">
-        {% for private_message in private_messages %}
-        <li class="list-group-item post">
-            <h5>From: {{ private_message.sender.username }}</h5>
-            <p>{{ private_message.content }}</p>
-            <small class="text-muted">Sent on {{ private_message.timestamp|date:"F j, Y, g:i a" }}</small>
-            <div class="mt-2">
-                {% if request.user == private_message.sender %}
-                <a href="{% url 'board:edit_message' private_message.id %}" class="btn btn-primary btn-sm">Edit</a>
-                <a href="{% url 'board:delete_message' private_message.id %}" class="btn btn-danger btn-sm">Delete</a>
-                {% endif %}
+    <!-- User Posts Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h3>{{ user_profile.username }}'s Posts</h3>
+                </div>
+                <div class="card-body">
+                    {% if posts %}
+                        <ul class="list-group">
+                            {% for post in posts %}
+                                <li class="list-group-item">
+                                    <h5>{{ post.title }}</h5>
+                                    <p>{{ post.content }}</p>
+                                    <small class="text-muted">Posted on {{ post.created_at|date:"F j, Y, g:i a" }}</small>
+                                    {% if request.user == post.author %}
+                                        <div class="mt-2">
+                                            <a href="{% url 'board:edit_post' post.id %}" class="btn btn-primary btn-sm">Edit</a>
+                                            <a href="{% url 'board:delete_post' post.id %}" class="btn btn-danger btn-sm">Delete</a>
+                                        </div>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No posts available.</p>
+                    {% endif %}
+                </div>
             </div>
-        </li>
-        {% empty %}
-        <li class="list-group-item">No private messages available.</li>
-        {% endfor %}
-    </ul>
+        </div>
+    </div>
 
+    <!-- Private Messages Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h3>{{ user_profile.username }}'s Private Messages</h3>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'board:create_message' %}" class="btn btn-primary mb-3">Send a Private Message</a>
+                    {% if private_messages %}
+                        <ul class="list-group">
+                            {% for private_message in private_messages %}
+                                <li class="list-group-item">
+                                    <h5>From: {{ private_message.sender.username }}</h5>
+                                    <p>{{ private_message.content }}</p>
+                                    <small class="text-muted">Sent on {{ private_message.timestamp|date:"F j, Y, g:i a" }}</small>
+                                    {% if request.user == private_message.sender %}
+                                        <div class="mt-2">
+                                            <a href="{% url 'board:edit_message' private_message.id %}" class="btn btn-primary btn-sm">Edit</a>
+                                            <a href="{% url 'board:delete_message' private_message.id %}" class="btn btn-danger btn-sm">Delete</a>
+                                        </div>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No private messages available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flagged Posts for Moderation (Admin Only) -->
     {% if request.user.is_staff %}
-    <h2>Flagged Posts for Moderation</h2>
-    <p><a href="{% url 'board:moderate_posts' %}">Moderation Dashboard</a></p>
-    <ul class="list-group mb-4">
-        {% for flagged_post in flagged_posts %}
-        <li class="list-group-item post">
-            <h3>{{ flagged_post.title }}</h3>
-            <p>{{ flagged_post.content }}</p>
-            <small class="text-muted">Posted by {{ flagged_post.author.username }}</small>
-            <div class="mt-2">
-                <a href="{% url 'board:approve_post' flagged_post.id %}" class="btn btn-success btn-sm">Approve</a>
-                <a href="{% url 'board:reject_post' flagged_post.id %}" class="btn btn-danger btn-sm">Reject</a>
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h3>Flagged Posts for Moderation</h3>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'board:moderate_posts' %}" class="btn btn-warning mb-3">Moderation Dashboard</a>
+                    {% if flagged_posts %}
+                        <ul class="list-group">
+                            {% for flagged_post in flagged_posts %}
+                                <li class="list-group-item">
+                                    <h5>{{ flagged_post.title }}</h5>
+                                    <p>{{ flagged_post.content }}</p>
+                                    <small class="text-muted">Posted by {{ flagged_post.author.username }}</small>
+                                    <div class="mt-2">
+                                        <a href="{% url 'board:approve_post' flagged_post.id %}" class="btn btn-success btn-sm">Approve</a>
+                                        <a href="{% url 'board:reject_post' flagged_post.id %}" class="btn btn-danger btn-sm">Reject</a>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No flagged posts for moderation.</p>
+                    {% endif %}
+                </div>
             </div>
-        </li>
-        {% empty %}
-        <li class="list-group-item">No flagged posts for moderation.</li>
-        {% endfor %}
-    </ul>
+        </div>
+    </div>
     {% endif %}
-    
-    <!-- Link to user profile settings -->
-    <a href="{% url 'board:profile_settings' user_profile.username %}" class="btn btn-primary mt-3">Profile Settings</a>
+
+    <!-- Habit Progress Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h3>{{ user_profile.username }}'s Habit Progress</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-responsive-md">
+                        <thead>
+                            <tr>
+                                <th>Habit</th>
+                                <th>Frequency</th>
+                                <th>Progress</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for habit in habits %}
+                                <tr>
+                                    <td>{{ habit.name }}</td>
+                                    <td>{{ habit.get_frequency_display }}</td>
+                                    <td>{{ habit.current_count }}/{{ habit.target_count }}</td>
+                                    <td>
+                                        {% if habit.completed %}
+                                            <span class="badge badge-success">Completed</span>
+                                        {% else %}
+                                            <span class="badge badge-warning">In Progress</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form action="{% url 'board:increment_habit' habit.id %}" method="post" style="display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-primary btn-sm">Add one!!</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5">No habits found.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <h4>Habit Tracker Summary</h4>
+                    <p>Total Habits: {{ habits.count }}</p>
+                    <p>Completed Habits: {{ completed_habits }}</p>
+                    <p>Completion Rate: {{ completion_rate }}%</p>
+                    <a href="{% url 'board:habit_insights' %}" class="btn btn-primary mt-3">View Detailed Insights</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<h2>{{ user_profile.username }}'s Habit Progress</h2>
-
-<div class="habit-report-card">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Habit</th>
-                <th>Frequency</th>
-                <th>Progress</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for habit in habits %}
-                <tr>
-                    <td>{{ habit.name }}</td>
-                    <td>{{ habit.get_frequency_display }}</td>
-                    <td>{{ habit.current_count }}/{{ habit.target_count }}</td>
-                    <td>
-                        {% if habit.completed %}
-                            <span class="badge badge-success">Completed</span>
-                        {% else %}
-                            <span class="badge badge-warning">In Progress</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <form action="{% url 'board:increment_habit' habit.id %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-primary">Increment</button>
-                        </form>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="5">No habits found.</td>
-                </tr>
-                
-            {% endfor %}
-        </tbody>
-    </table>
-
-<!-- Habit Tracker Summary -->
-<h3>Habit Tracker Summary</h3>
-<p>Total Habits: {{ habits.count }}</p>
-<p>Completed Habits: {{ completed_habits }}</p>
-<p>Completion Rate: {{ completion_rate }}%</p>
-
-<a href="{% url 'board:habit_insights' %}" class="btn btn-primary">View Detailed Insights</a>
-
-</div>
-
 {% endblock %}

@@ -1,11 +1,10 @@
 from .models import FamilyToDoItem, SamsTodoItem
 from django.contrib import admin
 from .models import Post, User, PrivateMessage, UserProfile
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 
 # Customizing the UserAdmin for the custom User model
-class CustomUserAdmin(BaseUserAdmin):
+class CustomUserAdmin(admin.ModelAdmin):
     ordering = ('email',)
     list_display = ('email', 'username', 'is_staff',
                     'is_active', 'is_approved', 'is_trusted_user')

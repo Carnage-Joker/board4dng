@@ -1,14 +1,32 @@
-<h2>Habit Insights</h2>
+{% extends 'board/base.html' %}
 
-{% for insight in insights %}
-    <div class="habit-summary">
-        <h3>{{ insight.habit.name }}</h3>
-        <p><strong>Daily Progress:</strong> {{ insight.daily_progress }}</p>
-        <p><strong>Weekly Progress:</strong> {{ insight.weekly_progress }}</p>
-        <p><strong>Monthly Progress:</strong> {{ insight.monthly_progress }}</p>
-        <p><strong>Annual Progress:</strong> {{ insight.annual_progress }}</p>
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="text-center">Habit Insights</h2>
+            <hr class="mb-4">
+
+            {% for insight in insights %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title">{{ insight.habit.name }}</h4>
+                        <p class="card-text">
+                            <strong>Daily Progress:</strong> {{ insight.daily_progress }}<br>
+                            <strong>Weekly Progress:</strong> {{ insight.weekly_progress }}<br>
+                            <strong>Monthly Progress:</strong> {{ insight.monthly_progress }}<br>
+                            <strong>Annual Progress:</strong> {{ insight.annual_progress }}
+                        </p>
+                        <div class="progress mb-3">
+                            <div class="progress-bar" role="progressbar" style="width: {{ insight.daily_progress_percentage|floatformat:0 }}%;" aria-valuenow="{{ insight.daily_progress }}" aria-valuemin="0" aria-valuemax="{{ insight.habit.target_count }}">
+                                {{ insight.daily_progress }}/{{ insight.habit.target_count }}
+                            </div>
+                        </div>
+                        <a href="{% url 'board:profile' request.user.username %}" class="btn btn-secondary">Back to Profile</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     </div>
-    <hr>
-{% endfor %}
-
-<a href="{% url 'board:profile' request.user.username %}" class="btn btn-secondary">Back to Profile</a>
+</div>
+{% endblock %}

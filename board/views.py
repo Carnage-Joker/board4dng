@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from django.utils import timezone
 from django.db.models import Sum
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
@@ -29,6 +30,13 @@ from .forms import (CustomUserCreationForm, PostForm, PrivateMessageForm,
 
 logger = logging.getLogger(__name__)
 
+
+def custom_404(request, exception):
+    return render(request, '404.html', status=404)
+
+
+def custom_500(request):
+    return render(request, '500.html', status=500)
 
 def load_banned_words(file_path=None):
     if not file_path:
@@ -80,7 +88,7 @@ def subscribe(request):
 class LogoutView(LoginRequiredMixin, View):
     def get(self, request):
         logout(request)
-        return redirect('board:login')
+        return redirect('board:welcome')
 
 
 @login_required
@@ -159,16 +167,15 @@ def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(
-                request, "Registration successful. Please log in.")
-            return redirect('board:login')
-        else:
-            messages.error(
-                request, "There was an error with your registration.")
+            user = form.save(commit=False)
+            user.is_approved = False  # Set to False until approved by admin
+            user.save()
+            messages.info(
+                request, 'Your registration is pending approval by the admin.')
+            # Redirect to the home page or an info page
+            return redirect('board:welcome')
     else:
         form = CustomUserCreationForm()
-
     return render(request, 'board/register.html', {'form': form})
 
 
@@ -233,8 +240,17 @@ class UserLoginView(LoginView):
     template_name = 'board/login.html'
     success_url = reverse_lazy('board:message_board')
 
+    def form_valid(self, form):
+        user = form.get_user()
+        if user.is_approved:
+            messages.success(self.request, 'You have successfully logged in.')
+            return super().form_valid(form)
+        else:
+            messages.error(
+                self.request, 'Your account is awaiting admin approval.')
+            return redirect('board:login')
+
     def get_success_url(self):
-        messages.success(self.request, 'You have successfully logged in.')
         return self.success_url
 
 
@@ -408,7 +424,7 @@ def increment_habit(request, habit_id):
 @login_required
 def habit_insights(request):
     habits = Habit.objects.filter(user=request.user)
-    today = datetime.now().date()
+    today = timezone.now().date()
 
     insights = []
 
@@ -422,12 +438,20 @@ def habit_insights(request):
         annual_progress = HabitProgress.objects.filter(
             habit=habit, date__year=today.year).aggregate(Sum('count'))['count__sum'] or 0
 
+        # Calculate progress percentage for the daily progress
+        if habit.target_count > 0:
+            daily_progress_percentage = (
+                daily_progress / habit.target_count) * 100
+        else:
+            daily_progress_percentage = 0
+
         insights.append({
             'habit': habit,
             'daily_progress': daily_progress,
             'weekly_progress': weekly_progress,
             'monthly_progress': monthly_progress,
-            'annual_progress': annual_progress
+            'annual_progress': annual_progress,
+            'daily_progress_percentage': daily_progress_percentage
         })
 
     context = {
