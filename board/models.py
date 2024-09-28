@@ -72,15 +72,12 @@ class PrivateMessage(models.Model):
 
 class Post(models.Model):
     """Model for posts in the message board."""
-
     title = models.CharField(max_length=100)
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     is_flagged = models.BooleanField(default=False)
     is_moderated = models.BooleanField(default=False)
-
-    # Remove is_trusted_user from Post model (assume this is now on User)
 
     def flag_for_moderation(self, banned_word):
         """Flags the post for moderation and notifies moderators."""
@@ -89,17 +86,22 @@ class Post(models.Model):
         self.save()
 
         # Notify moderators with information about the banned word
-        send_to_moderator(
-            self, reason=f"Flagged due to banned word: {banned_word}")
+        send_to_moderator(self, reason=f"Flagged due to banned word: {banned_word}")
 
-    def reject(self):
-        """Deletes the post (could be enhanced to mark as 'rejected')."""
-        self.delete()
+    def send_creation_notification(self):
+        """Send email notification to all users except the author."""
+        all_user_emails = User.objects.exclude(id=self.author.id).exclude(email='').values_list('email', flat=True)
+
+        send_mail(
+            subject='New Post Created',
+            message=f"A new post has been created by {self.author.username}.",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=list(all_user_emails),
+            fail_silently=False,
+        )
 
     def __str__(self):
-        # Display first 20 characters for admin panel
         return f"Post: {self.title} by {self.author.username if self.author else 'Unknown'}"
-
 
 class UserProfile(models.Model):
     """Extended user profile model."""
