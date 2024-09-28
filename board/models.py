@@ -2,6 +2,8 @@ from .utils import send_to_moderator  # Assuming you have a utility for this
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.utils import timezone
+from django.core.mail import send_mail
+from django.conf import settings
 
 
 def get_default_user():
@@ -103,6 +105,7 @@ class Post(models.Model):
     def __str__(self):
         return f"Post: {self.title} by {self.author.username if self.author else 'Unknown'}"
 
+
 class UserProfile(models.Model):
     """Extended user profile model."""
 
@@ -168,13 +171,13 @@ class Habit(models.Model):
 class FamilyToDoItem(models.Model):
     task_name = models.CharField(max_length=255)
     assigned_to = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='family_todos')
+         User, on_delete=models.CASCADE, related_name='family_todos', blank=True, null=True)
     due_date = models.DateField()
     completed = models.BooleanField(default=False)
 
     def __str__(self):
         return self.task_name
-
+    
 
 class SamsTodoItem(models.Model):
     task_name = models.CharField(max_length=255)

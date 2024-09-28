@@ -2,34 +2,40 @@
 
 {% extends 'board/base.html' %}
 {% load static %}
-{% block title %}Family To-Do List{% endblock %}
+{% block title %}
+  Family To-Do List
+{% endblock %}
 
 {% block content %}
-<div class="container">
+  <div class="container">
     <h2 class="mb-4">Family To-Do List</h2>
-    
+
     <a href="{% url 'board:add_family_todo' %}" class="btn btn-primary mb-3">Add New Family Task</a>
-    
+
     {% if todos %}
-        <ul class="list-group">
-            {% for todo in todos %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>{{ todo.task_name }}</strong><br>
-                        <small>Due: {{ todo.due_date|date:"F j, Y" }}</small>
-                    </div>
-                    <div>
-                        {% if not todo.completed %}
-                            <a href="{% url 'board:complete_family_todo' todo.id %}" class="btn btn-success btn-sm">Mark as Completed</a>
-                        {% else %}
-                            <span class="badge bg-success">Completed</span>
-                        {% endif %}
-                    </div>
-                </li>
-            {% endfor %}
+      <ul class="list-group">
+        <ul>
+          {% for todo in todos %}
+            <li>
+              <strong>{{ todo.task_name }}</strong> - Due: {{ todo.due_date }}
+              {% if todo.assigned_to %}
+                (Assigned to: {{ todo.assigned_to.username }})
+              {% else %}
+                (Assigned to: Everyone)
+              {% endif %}
+              {% if not todo.completed %}
+                <a href="{% url 'board:complete_family_todo' todo.id %}">Mark as Complete</a>
+              {% else %}
+                <span>Completed</span>
+              {% endif %}
+            </li>
+          {% endfor %}
         </ul>
+      </ul>
     {% else %}
-        <p>No family tasks available. <a href="{% url 'board:add_family_todo' %}">Add a new task</a>.</p>
+      <p>
+        No family tasks available. <a href="{% url 'board:add_family_todo' %}">Add a new task</a>.
+      </p>
     {% endif %}
-</div>
+  </div>
 {% endblock %}

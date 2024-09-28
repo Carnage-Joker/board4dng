@@ -86,11 +86,16 @@ class HabitForm(forms.ModelForm):
 
 # board/forms.py
 
-
 class FamilyTodoForm(forms.ModelForm):
+    assigned_to = forms.ModelChoiceField(
+        queryset=User.objects.all(),  # Update to your User queryset as needed
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
     class Meta:
         model = FamilyToDoItem
-        fields = ['task_name', 'due_date']
+        fields = ['task_name', 'due_date', 'assigned_to']
         widgets = {
             'task_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter family task'}),
             'due_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),

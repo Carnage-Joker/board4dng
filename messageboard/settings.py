@@ -152,7 +152,6 @@ AUTH_USER_MODEL = 'board.User'
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Redirect users to login page after logout
 LOGOUT_REDIRECT_URL = '/login/'
-ERROR_PAGE = '/404/'
 
 
 
@@ -161,9 +160,9 @@ ERROR_PAGE = '/404/'
 django_heroku.settings(locals())
 
 # Add security settings if DEBUG is False
-if not DEBUG:
-    SECURE_SSL_REDIRECT = True
-    SECURE_HSTS_SECONDS = 31536000  # 1 year
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_SECURE = True
+ #  if not DEBUG:
+ #   SECURE_SSL_REDIRECT = True
+ #   SECURE_HSTS_SECONDS = 31536000  # 1 year
+ #   SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+ #   CSRF_COOKIE_SECURE = True
+ #   SESSION_COOKIE_SECURE = True

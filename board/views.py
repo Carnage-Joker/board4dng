@@ -3,12 +3,12 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views import View
+from django.db.models import Q
 from django.urls import reverse_lazy
 from django.contrib.auth.views import LoginView
 import logging
 import os
 from django.views.decorators.csrf import csrf_exempt
-import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -18,14 +18,14 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.urls import reverse
 from django.views.generic.edit import UpdateView
-from .models import Post, PrivateMessage, UserProfile, Habit, FamilyToDoItem, SamsTodoItem, User
+from .utils import send_fcm_notification
+
+from .models import (Post, PrivateMessage, UserProfile, Habit, FamilyToDoItem,
+                     SamsTodoItem, User)
 from .forms import (CustomUserCreationForm, PostForm, PrivateMessageForm,
                     UserProfileForm, SamsTodoForm, HabitForm, FamilyTodoForm)
-from .utils import send_to_moderator, send_fcm_notification
 
 logger = logging.getLogger(__name__)
-
-# Load banned words from file
 
 
 def load_banned_words(file_path=None):
@@ -389,7 +389,9 @@ def is_parent(user):
 
 @login_required
 def family_todo_list(request):
-    todos = FamilyToDoItem.objects.filter(assigned_to=request.user)
+    todos = FamilyToDoItem.objects.filter(
+        Q(assigned_to=request.user) | Q(assigned_to__isnull=True)
+    )
     return render(request, 'board/family_todo_list.html', {'todos': todos})
 
 
@@ -399,7 +401,9 @@ def add_family_todo(request):
         form = FamilyTodoForm(request.POST)
         if form.is_valid():
             family_todo = form.save(commit=False)
-            family_todo.assigned_to = request.user
+            # Assign the current user if the field is left blank (optional)
+            if not family_todo.assigned_to:
+                family_todo.assigned_to = None
             family_todo.save()
             return redirect('board:family_todo_list')
     else:
@@ -409,10 +413,11 @@ def add_family_todo(request):
 
 @login_required
 def complete_family_todo(request, todo_id):
-    todo = get_object_or_404(FamilyToDoItem, id=todo_id,
-                             assigned_to=request.user)
-    todo.completed = True
-    todo.save()
+    todo = get_object_or_404(FamilyToDoItem, id=todo_id)
+    # Ensure that only assigned tasks or tasks for everyone can be marked as complete
+    if todo.assigned_to == request.user or todo.assigned_to is None:
+        todo.completed = True
+        todo.save()
     return redirect('board:family_todo_list')
 
 
