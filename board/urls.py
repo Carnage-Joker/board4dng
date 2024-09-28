@@ -56,7 +56,7 @@ urlpatterns = [
          views.edit_message, name='edit_message'),
     path('delete_message/<int:message_id>/',
          views.delete_message, name='delete_message'),
-    path('private_messages/', views.PrivateMessageView.as_view(),
+    path('private_messages/', PrivateMessageView.as_view(),
          name='private_messages'),
     path('profile/<str:username>/settings/',
          ProfileSettingsView.as_view(), name='profile_settings'),

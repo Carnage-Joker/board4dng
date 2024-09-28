@@ -1,7 +1,5 @@
-
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
-
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views import View
@@ -23,17 +21,12 @@ from django.views.generic.edit import UpdateView
 from .models import Post, PrivateMessage, UserProfile, Habit, FamilyToDoItem, SamsTodoItem, User
 from .forms import (CustomUserCreationForm, PostForm, PrivateMessageForm,
                     UserProfileForm, SamsTodoForm, HabitForm, FamilyTodoForm)
-from .utils import send_to_moderator, send_creation_notification
+from .utils import send_to_moderator, send_fcm_notification
 
 logger = logging.getLogger(__name__)
 
+# Load banned words from file
 
-# Custom decorator to restrict actions to staff users
-def staff_required(view_func):
-    return user_passes_test(lambda u: u.is_staff, login_url='board:message_board')(view_func)
-
-
-logger = logging.getLogger(__name__)
 
 def load_banned_words(file_path=None):
     if not file_path:
@@ -48,10 +41,20 @@ def load_banned_words(file_path=None):
         logger.error("Banned words file not found.")
         return []
 
+
 BANNED_WORDS = load_banned_words()
+
+
 def contains_banned_words(content):
     content_lower = content.lower()
     return next((word for word in BANNED_WORDS if word in content_lower), None)
+
+# Custom decorator to restrict actions to staff users
+
+
+def staff_required(view_func):
+    return user_passes_test(lambda u: u.is_staff, login_url='board:message_board')(view_func)
+
 
 @csrf_exempt
 @login_required
@@ -64,7 +67,8 @@ def subscribe(request):
         return JsonResponse({'status': 'error', 'message': 'Token missing'}, status=400)
 
     try:
-        request.user.update(fcm_token=token)
+        request.user.fcm_token = token  # Assuming 'fcm_token' is a field on the user model
+        request.user.save()
     except IntegrityError:
         return JsonResponse({'status': 'error', 'message': 'Database update failed'}, status=500)
 
@@ -75,7 +79,6 @@ class LogoutView(LoginRequiredMixin, View):
     def get(self, request):
         logout(request)
         return redirect('board:login')
-
 
 
 @login_required
@@ -92,6 +95,7 @@ def create_post(request):
             else:
                 post.is_moderated = False
 
+            # Check if the content contains any banned words
             if banned_word := contains_banned_words(post.content):
                 post.flag_for_moderation(banned_word)
                 messages.warning(
@@ -136,7 +140,7 @@ def approve_post(request, post_id):
 @staff_required
 def reject_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    post.reject()  # Refactored into the Post model
+    post.delete()  # Directly delete the post instead of using `reject()`
     messages.success(request, "The post has been rejected and deleted.")
     return redirect('board:moderate_posts')
 
@@ -170,21 +174,23 @@ def register(request):
 def profile(request, username):
     user = get_object_or_404(User, username=username)
     posts = Post.objects.filter(author=user)
-    private_messages = PrivateMessage.objects.filter(recipient=user).order_by('-timestamp')
+    private_messages = PrivateMessage.objects.filter(
+        recipient=user).order_by('-timestamp')
     habits = Habit.objects.filter(user=user)
     flagged_posts = []
+
     if request.user.is_staff:
         flagged_posts = Post.objects.filter(
             is_flagged=True).order_by('-created_at')
 
     if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=user)
+        form = UserProfileForm(request.POST, instance=user.userprofile)
         if form.is_valid():
             form.save()
             messages.success(request, 'Your preferences have been updated.')
             return redirect('board:profile', username=user.username)
     else:
-        form = UserProfileForm(instance=user)
+        form = UserProfileForm(instance=user.userprofile)
 
     context = {
         'flagged_posts': flagged_posts,
@@ -211,7 +217,6 @@ def message_board(request):
 class UserLoginView(LoginView):
     template_name = 'board/login.html'
     success_url = reverse_lazy('board:message_board')
-    fail_silently = False
 
     def get_success_url(self):
         messages.success(self.request, 'You have successfully logged in.')
@@ -277,9 +282,6 @@ def create_message(request):
         form = PrivateMessageForm()
 
     return render(request, 'board/create_message.html', {'form': form})
-
-
-
 
 
 @login_required
@@ -379,6 +381,8 @@ def increment_habit(request, habit_id):
     return redirect('board:profile', username=request.user.username)
 
 # Check if user is a parent
+
+
 def is_parent(user):
     return user.is_staff  # or any other condition that defines a parent
 
