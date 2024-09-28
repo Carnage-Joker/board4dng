@@ -27,6 +27,8 @@ urlpatterns = [
     path('increment_habit/<int:habit_id>/',
          views.increment_habit, name='increment_habit'),
     path('profile/<str:username>/', views.profile, name='profile'),
+    path('habit_insights/', views.habit_insights, name='habit_insights'),
+
 
 
     # Sam's To-Do URLs

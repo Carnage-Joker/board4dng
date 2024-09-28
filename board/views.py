@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+from django.db.models import Sum
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db import IntegrityError
@@ -21,7 +23,7 @@ from django.views.generic.edit import UpdateView
 from .utils import send_fcm_notification
 
 from .models import (Post, PrivateMessage, UserProfile, Habit, FamilyToDoItem,
-                     SamsTodoItem, User)
+                     SamsTodoItem, User, HabitProgress)
 from .forms import (CustomUserCreationForm, PostForm, PrivateMessageForm,
                     UserProfileForm, SamsTodoForm, HabitForm, FamilyTodoForm)
 
@@ -177,6 +179,16 @@ def profile(request, username):
     private_messages = PrivateMessage.objects.filter(
         recipient=user).order_by('-timestamp')
     habits = Habit.objects.filter(user=user)
+
+    total_habits = habits.count()
+    completed_habits = habits.filter(completed=True).count()
+
+    # Calculate completion percentage
+    if total_habits > 0:
+        completion_rate = (completed_habits / total_habits) * 100
+    else:
+        completion_rate = 0
+
     flagged_posts = []
 
     if request.user.is_staff:
@@ -193,15 +205,18 @@ def profile(request, username):
         form = UserProfileForm(instance=user.userprofile)
 
     context = {
-        'flagged_posts': flagged_posts,
-        'is_staff': request.user.is_staff,
         'user_profile': user,
         'posts': posts,
-        'habits': habits,
         'private_messages': private_messages,
+        'habits': habits,
+        'completion_rate': completion_rate,
+        'flagged_posts': flagged_posts,
+        'is_staff': request.user.is_staff,
         'form': form,
     }
+
     return render(request, 'board/profile.html', context)
+
 
 
 @login_required
@@ -340,6 +355,10 @@ class ProfileSettingsView(LoginRequiredMixin, UpdateView):
 @login_required
 def habit_tracker(request):
     habits = Habit.objects.filter(user=request.user)
+    
+    for habit in habits:
+        habit.reset_if_needed()
+
     return render(request, 'board/habit_tracker.html', {'habits': habits})
 
 
@@ -374,13 +393,47 @@ def increment_habit(request, habit_id):
 
     # Increment the habit count
     habit.increment_count()
+
+    # Log progress
+    HabitProgress.objects.create(
+        habit=habit, date=datetime.now().date(), count=habit.current_count)
+
     messages.success(request, f"You've completed {habit.name} {
                      habit.current_count}/{habit.target_count} times!")
 
     # Redirect back to the user's profile or another page
     return redirect('board:profile', username=request.user.username)
 
-# Check if user is a parent
+
+@login_required
+def habit_insights(request):
+    habits = Habit.objects.filter(user=request.user)
+    today = datetime.now().date()
+
+    insights = []
+
+    for habit in habits:
+        daily_progress = HabitProgress.objects.filter(
+            habit=habit, date=today).aggregate(Sum('count'))['count__sum'] or 0
+        weekly_progress = HabitProgress.objects.filter(
+            habit=habit, date__gte=today - timedelta(weeks=1)).aggregate(Sum('count'))['count__sum'] or 0
+        monthly_progress = HabitProgress.objects.filter(
+            habit=habit, date__month=today.month, date__year=today.year).aggregate(Sum('count'))['count__sum'] or 0
+        annual_progress = HabitProgress.objects.filter(
+            habit=habit, date__year=today.year).aggregate(Sum('count'))['count__sum'] or 0
+
+        insights.append({
+            'habit': habit,
+            'daily_progress': daily_progress,
+            'weekly_progress': weekly_progress,
+            'monthly_progress': monthly_progress,
+            'annual_progress': annual_progress
+        })
+
+    context = {
+        'insights': insights
+    }
+    return render(request, 'board/habit_insights.html', context)
 
 
 def is_parent(user):

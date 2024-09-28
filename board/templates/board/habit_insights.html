@@ -1,0 +1,14 @@
+<h2>Habit Insights</h2>
+
+{% for insight in insights %}
+    <div class="habit-summary">
+        <h3>{{ insight.habit.name }}</h3>
+        <p><strong>Daily Progress:</strong> {{ insight.daily_progress }}</p>
+        <p><strong>Weekly Progress:</strong> {{ insight.weekly_progress }}</p>
+        <p><strong>Monthly Progress:</strong> {{ insight.monthly_progress }}</p>
+        <p><strong>Annual Progress:</strong> {{ insight.annual_progress }}</p>
+    </div>
+    <hr>
+{% endfor %}
+
+<a href="{% url 'board:profile' request.user.username %}" class="btn btn-secondary">Back to Profile</a>

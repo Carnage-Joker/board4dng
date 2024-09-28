@@ -1,3 +1,4 @@
+from datetime import timedelta
 from .utils import send_to_moderator  # Assuming you have a utility for this
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
@@ -147,14 +148,42 @@ class Habit(models.Model):
     name = models.CharField(max_length=255)
     start_date = models.DateField(auto_now_add=True)
     completed = models.BooleanField(default=False)
-    frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES, default='daily')
-    # Tracks how many times the habit has been completed
-    current_count = models.IntegerField(default=0)  # Tracks progress
-    target_count = models.IntegerField(
-        default=1)   # Goal to complete the habit
+    frequency = models.CharField(
+        max_length=20, choices=FREQUENCY_CHOICES, default='daily')
+    current_count = models.IntegerField(default=0)
+    target_count = models.IntegerField(default=1)
+    # Correctly set as a date field with default
+    reset_date = models.DateField(default=timezone.now)
+
+    def save(self, *args, **kwargs):
+        """Override save to set reset_date based on frequency if not already set."""
+        if not self.reset_date:
+            self.reset_date = self.calculate_reset_date()
+        super().save(*args, **kwargs)
+
+    def calculate_reset_date(self):
+        """Calculate the next reset date based on the frequency."""
+        now = timezone.now()
+
+        if self.frequency == 'hourly':
+            return now + timedelta(hours=1)
+        elif self.frequency == 'daily':
+            return now + timedelta(days=1)
+        elif self.frequency == 'weekly':
+            return now + timedelta(weeks=1)
+        elif self.frequency == 'monthly':
+            # This will never fail
+            next_month = now.replace(day=28) + timedelta(days=4)
+            # Get the first day of the next month
+            return next_month.replace(day=1).date()
+        elif self.frequency == 'yearly':
+            return now.replace(year=now.year + 1).date()
+        return now.date()  # Default to today if no valid frequency
 
     def increment_count(self):
         """Increments the current count and checks if the habit is completed."""
+        self.reset_if_needed()
+
         if self.current_count < self.target_count:
             self.current_count += 1
             self.save()
@@ -163,9 +192,44 @@ class Habit(models.Model):
             self.completed = True
             self.save()
 
+    def reset_if_needed(self):
+        """Resets the habit's count based on the frequency."""
+        now = timezone.now()
+
+        if self.frequency == 'hourly' and now >= self.reset_date:
+            self.current_count = 0
+            self.reset_date = now + timedelta(hours=1)
+
+        elif self.frequency == 'daily' and now.date() >= self.reset_date:
+            self.current_count = 0
+            self.reset_date = now.date() + timedelta(days=1)
+
+        elif self.frequency == 'weekly' and now.date() >= self.reset_date:
+            self.current_count = 0
+            self.reset_date = now.date() + timedelta(weeks=1)
+
+        elif self.frequency == 'monthly' and now.date() >= self.reset_date:
+            self.current_count = 0
+            next_month = now.replace(day=28) + timedelta(days=4)
+            self.reset_date = next_month.replace(day=1).date()
+
+        elif self.frequency == 'yearly' and now.date() >= self.reset_date:
+            self.current_count = 0
+            self.reset_date = now.replace(year=now.year + 1).date()
+
+        self.completed = False
+        self.save()
+
+
+class HabitProgress(models.Model):
+    habit = models.ForeignKey(
+            Habit, on_delete=models.CASCADE, related_name='progress')
+            
+    date = models.DateField(auto_now_add=True)
+    count = models.PositiveIntegerField()
+
     def __str__(self):
-        return self.name
-# board/models.py
+        return f"{self.habit.name} progress on {self.date}"
 
 
 class FamilyToDoItem(models.Model):

@@ -105,9 +105,19 @@
                 <tr>
                     <td colspan="5">No habits found.</td>
                 </tr>
+                
             {% endfor %}
         </tbody>
     </table>
+
+<!-- Habit Tracker Summary -->
+<h3>Habit Tracker Summary</h3>
+<p>Total Habits: {{ habits.count }}</p>
+<p>Completed Habits: {{ completed_habits }}</p>
+<p>Completion Rate: {{ completion_rate }}%</p>
+
+<a href="{% url 'board:habit_insights' %}" class="btn btn-primary">View Detailed Insights</a>
+
 </div>
 
 {% endblock %}
